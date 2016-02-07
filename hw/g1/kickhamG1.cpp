@@ -23,7 +23,7 @@ using namespace std;
 
 void toggleLabels();
 void toggleRoads();
-void drawRoads(bool onOff);
+void drawRoads();
 
 const int wh = 938;			// window height proportions based off of a 5x8 printout
 const int ww = 1500;		// window width proportions based off of a 5x8 printout
@@ -37,7 +37,7 @@ void display ()
    glClear (GL_COLOR_BUFFER_BIT);
 
    // draw the roads
-   drawRoads(true);
+   drawRoads();
 
    // draw
    glFlush ();
@@ -79,11 +79,26 @@ void toggleLabels()
 		labels = true;
 }
 
-void drawRoads(bool onOff)
-// figure out dimensions of map then fix road locations
+void toggleRoads()
+// toggles the roads on the map
+{
+	if (roads == true)
+	{
+		roads = false;
+		drawRoads();
+	}
+	else
+	{
+		roads = true;
+		drawRoads();
+	}
+}
+
+void drawRoads()
+// draws roads, maps out from West to East
 // ww = window width, wh = window height
 {
-	if (onOff == 1)
+	if (roads == 1)
 		// set road color to grey
    		glColor3f(0.5, 0.5, 0.5);
    	else
@@ -91,34 +106,29 @@ void drawRoads(bool onOff)
    		glColor3f(0.0, 0.5, 0.0);
 
 	// Rt 123
-	glRectf(200.0, wh, ww, wh-20.0);
+	glRectf((.25*ww), wh, ww, (.98*wh));
+	// slant
 	glBegin(GL_POLYGON);
-		glVertex3f(180.0, wh, 0.0);
-		glVertex3f(0.0, wh-50.0, 0.0);
-		glVertex3f(0.0, wh-70.0, 0.0);
-		glVertex3f(200.0, wh-20.0, 0.0);
+		glVertex3f((.15*ww), (.98*wh), 0.0);
+		glVertex3f(0.0, (.88*wh), 0.0);
+		glVertex3f(0.0, (.86*wh), 0.0);
+		glVertex3f((.25*ww), (.98*wh), 0.0);
 	glEnd();
 
 	// library square
-	glRectf(0.0, wh, 200.0, wh-20.0);
+	glRectf((.0625*ww), wh, (.25*ww), (.98*wh));
+
+	// Rt 140 (library square)
+	glRectf((.0625*ww), wh, (.075*ww), (.90*wh));
+
+	// Taunton Ave
+	glRectf((.1*ww), 0.0, (.1125*ww), (.93*wh));
+
+	// Howard Street
+	glRectf((.25*ww), wh, (.2625*ww), (.4*wh));
 
 	// draw roads
 	glFlush();
-}
-
-void toggleRoads()
-// toggles the roads on the map
-{
-	if (roads == true)
-	{
-		roads = false;
-		drawRoads(roads);
-	}
-	else
-	{
-		roads = true;
-		drawRoads(roads);
-	}
 }
 
 int main (int argc, char** argv)
