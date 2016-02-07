@@ -25,8 +25,8 @@ void toggleLabels();
 void toggleRoads();
 void drawRoads(bool onOff);
 
-const int windowHeight = 900;
-const int windowWidth = 1019;
+const int wh = 938;			// window height proportions based off of a 5x8 printout
+const int ww = 1500;		// window width proportions based off of a 5x8 printout
 bool labels = false;
 bool roads = true;
 
@@ -66,7 +66,7 @@ void init ()
    glLoadIdentity();
    
    // define coordinate system in x, y 0-1
-   gluOrtho2D (0.0, windowWidth, 0.0, windowHeight);
+   gluOrtho2D (0.0, ww, 0.0, wh);
 }
 
 void toggleLabels()
@@ -81,6 +81,7 @@ void toggleLabels()
 
 void drawRoads(bool onOff)
 // figure out dimensions of map then fix road locations
+// ww = window width, wh = window height
 {
 	if (onOff == 1)
 		// set road color to grey
@@ -90,16 +91,16 @@ void drawRoads(bool onOff)
    		glColor3f(0.0, 0.5, 0.0);
 
 	// Rt 123
-	glRectf(200.0, windowHeight, windowWidth, 880.0);
+	glRectf(200.0, wh, ww, wh-20.0);
 	glBegin(GL_POLYGON);
-		glVertex3f(180.0, windowHeight, 0.0);
-		glVertex3f(0.0, windowHeight-50.0, 0.0);
-		glVertex3f(0.0, windowHeight-70.0, 0.0);
-		glVertex3f(200.0, windowHeight-20.0, 0.0);
+		glVertex3f(180.0, wh, 0.0);
+		glVertex3f(0.0, wh-50.0, 0.0);
+		glVertex3f(0.0, wh-70.0, 0.0);
+		glVertex3f(200.0, wh-20.0, 0.0);
 	glEnd();
 
 	// library square
-	glRectf(0.0, windowHeight, 200.0, 880.0);
+	glRectf(0.0, wh, 200.0, wh-20.0);
 
 	// draw roads
 	glFlush();
@@ -122,27 +123,27 @@ void toggleRoads()
 
 int main (int argc, char** argv)
 {
-   glutInit(&argc, argv);
-   glutInitDisplayMode (GLUT_SINGLE | GLUT_RGB);
+	glutInit(&argc, argv);
+	glutInitDisplayMode (GLUT_SINGLE | GLUT_RGB);
 
-   // size of window w/ const global (width, height)
-   glutInitWindowSize (windowWidth, windowHeight); 
+	// size of window w/ const global (width, height)
+	glutInitWindowSize (ww, wh); 
 
-   // position in top right
-   glutInitWindowPosition (100, 100);
+	// position in top right
+	glutInitWindowPosition (50, 0);
 
-   // make window w/ title
-   glutCreateWindow ("Campus Map");
+	// make window w/ title
+	glutCreateWindow ("Campus Map");
 
-   // initialize
-   init ();
+	// initialize
+	init ();
 
-   // continuously call keyboard function
-   glutKeyboardFunc(keyboard);
+	// continuously call keyboard function
+	glutKeyboardFunc(keyboard);
 
-   // continuously call display function
-   glutDisplayFunc(display);
+	// continuously call display function
+	glutDisplayFunc(display);
 
-   // keep repeating
-   glutMainLoop();
+	// keep repeating
+	glutMainLoop();
 }
