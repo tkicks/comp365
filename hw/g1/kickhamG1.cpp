@@ -99,15 +99,15 @@ void drawRoads()
 // ww = window width, wh = window height
 {
 	if (roads == 1)
-		// set road color to grey
-   		glColor3f(0.5, 0.5, 0.5);
+		// set road color to black
+   		glColor3f(0.0, 0.0, 0.0);
    	else
    		// set road color to green for the grass
    		glColor3f(0.0, 0.5, 0.0);
 
 	// Rt 123
 	glRectf((.25*ww), wh, ww, (.98*wh));
-	// slant
+	// Rt 123 slant
 	glBegin(GL_POLYGON);
 		glVertex3f((.15*ww), (.98*wh), 0.0);
 		glVertex3f(0.0, (.88*wh), 0.0);
@@ -126,6 +126,44 @@ void drawRoads()
 
 	// Howard Street
 	glRectf((.25*ww), wh, (.2625*ww), (.4*wh));
+	// Howard Street (East-West)
+	glRectf((.1*ww), (.4*wh), (.2625*ww), (.38*wh));
+
+	// Fillmore Drive
+
+	// Pine Street
+	glRectf((.6875*ww), wh, (.7075*ww), (.9*wh));
+	// Pine Street slant
+	glBegin(GL_POLYGON);
+		glVertex3f((.6875*ww), (.9*wh), 0.0);
+		glVertex3f((.7075*ww), (.9*wh), 0.0);
+		glVertex3f(ww, 0.0, 0.0);
+		glVertex3f((.98*ww), 0.0, 0.0);
+	glEnd();
+
+	// Roadss To Parking Lots
+	// P10
+	glRectf((.15*ww), (.95*wh), (.16*ww), (.9*wh));
+
+	// P7
+
+	// To Chase
+	glRectf((.5875*ww), (.79*wh), (.65*ww), (.8*wh));
+	// Chase slant
+	glBegin(GL_POLYGON);
+		glVertex3f((.65*ww), (.8007*wh), 0.0);
+		glVertex3f((.731*ww), (.6*wh), 0.0);
+		glVertex3f((.725*ww), (.59*wh), 0.0);
+		glVertex3f((.645*ww), (.79*wh), 0.0);
+	glEnd();
+
+	// P3
+	glBegin(GL_POLYGON);
+		glVertex3f((.875*ww), (.35*wh), 0.0);
+		glVertex3f((.88*ww), (.33*wh), 0.0);
+		glVertex3f((.825*ww), (.23*wh), 0.0);
+		glVertex3f((.823*ww), (.25*wh), 0.0);
+	glEnd();
 
 	// draw roads
 	glFlush();
