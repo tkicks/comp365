@@ -10,8 +10,11 @@ helloworld:	helloworld.cpp
 menu:		menu.cpp
 		g++ menu.cpp -o menu $(CFLAGS)
 
-parabola:		parabola.cpp
-		g++ parabola.cpp -o parabola $(CFLAGS)
+square:		square.cpp
+		g++ square.cpp -o square $(CFLAGS)
+
+displayList:		displayList.cpp
+		g++ displayList.cpp -o displayList $(CFLAGS)
 		
 
 clean:

@@ -59,7 +59,7 @@ void init ()
    glPixelStorei (GL_UNPACK_ALIGNMENT, 1);
 
    // background color (green for the grass)
-   glClearColor (0.0, 0.5, 0.0, 0.0);
+   glClearColor (1.0, 1.0, 1.0, 0.0);
 
    // flip vertex locations
    glMatrixMode (GL_PROJECTION);
@@ -103,7 +103,7 @@ void drawRoads()
    		glColor3f(0.5, 0.5, 0.5);
    	else
    		// set road color to green for the grass
-   		glColor3f(0.0, 0.5, 0.0);
+   		glColor3f(1.0, 1.0, 1.0);
 
 	// Rt 123
 	glRectf((.25*ww), wh, ww, (.98*wh));
@@ -126,6 +126,9 @@ void drawRoads()
 
 	// Howard Street
 	glRectf((.25*ww), wh, (.2625*ww), (.4*wh));
+
+	// Howard Street (East-West)
+	glRectf((ww));
 
 	// draw roads
 	glFlush();
