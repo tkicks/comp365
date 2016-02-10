@@ -33,6 +33,7 @@ void drawHaas();
 void drawLibrary();
 void drawOldSC();
 void drawNewSC();
+void drawBuildings();
 
 const int wh = 938;			// window height proportions based off of a 5x8 printout
 const int ww = 1500;		// window width proportions based off of a 5x8 printout
@@ -43,25 +44,27 @@ bool highlight[5];
 
 void display ()
 {
-   // set up window
-   glClear (GL_COLOR_BUFFER_BIT);
+	// set up window
+    glClear (GL_COLOR_BUFFER_BIT);
 
-   // draw the parking lots
-   drawParkingLots();
+	// draw the parking lots
+    drawParkingLots();
 
-   // draw the fields, dimple, and pond
-   drawGrass();
+   	// draw the fields, dimple, and pond
+    drawGrass();
 
-   // draw the buildings that get highlighted
+   	// draw the buildings that get highlighted
     for (int i = 0; i < 5; i++)
    		drawHighlights(i);
 
+   	// draw the buildings that don't get highlighted
+   	drawBuildings();
 
-   // draw the roads
-   drawRoads();
+   	// draw the roads
+   	drawRoads();
    
-   // draw
-   glFlush ();
+   	// draw
+   	glFlush ();
 }
 
 void keyboard(unsigned char key, int x, int y)
@@ -87,21 +90,21 @@ void keyboard(unsigned char key, int x, int y)
 
 void init ()
 {
-   glPixelStorei (GL_UNPACK_ALIGNMENT, 1);
+	glPixelStorei (GL_UNPACK_ALIGNMENT, 1);
 
-   // background color (green for the grass)
-   glClearColor (0.0, 0.5, 0.0, 0.0);
+   	// background color (green for the grass)
+   	glClearColor (0.0, 0.5, 0.0, 0.0);
 
-   // flip vertex locations
-   glMatrixMode (GL_PROJECTION);
-   glLoadIdentity();
+   	// flip vertex locations
+   	glMatrixMode (GL_PROJECTION);
+   	glLoadIdentity();
    
-   // define coordinate system in x, y 0-1
-   gluOrtho2D (0.0, ww, 0.0, wh);
+  	// define coordinate system in x, y 0-1
+   	gluOrtho2D (0.0, ww, 0.0, wh);
 
-   // say no buildings are highlighted
-   for (int i = 0; i < 5; i++)
-   	highlight[i] = false;
+   	// say no buildings are highlighted
+   	for (int i = 0; i < 5; i++)
+   		highlight[i] = false;
 }
 
 void toggleLabels()
@@ -189,14 +192,14 @@ void drawRoads()
 
 	// Fillmore Drive
 	// Haas curve
-	glLineWidth(4.0);
-	glBegin(GL_TRIANGLE_FAN);
-		glVertex3f((.42*ww), (.2*wh), 0.0);
-		glVertex3f((.25*ww), (.35*wh), 0.0);
-		glVertex3f((.5*ww), (.42*wh), 0.0);
-		glVertex3f((.39*ww), (.3*wh), 0.0);
+	// glLineWidth(4.0);
+	// glBegin(GL_TRIANGLE_FAN);
+	// 	glVertex3f((.42*ww), (.2*wh), 0.0);
+	// 	glVertex3f((.25*ww), (.35*wh), 0.0);
+	// 	glVertex3f((.5*ww), (.42*wh), 0.0);
+	// 	glVertex3f((.39*ww), (.3*wh), 0.0);
 
-	glEnd();
+	// glEnd();
 
 	// East end
 	glBegin(GL_POLYGON);
@@ -207,11 +210,11 @@ void drawRoads()
 	glEnd();
 
 	// Pine Street
-	glRectf((.6875*ww), wh, (.7075*ww), (.9*wh));
+	glRectf((.6875*ww), wh, (.7075*ww), (.86*wh));
 	// Pine Street slant
 	glBegin(GL_POLYGON);
-		glVertex3f((.6875*ww), (.9*wh), 0.0);
-		glVertex3f((.7075*ww), (.9*wh), 0.0);
+		glVertex3f((.6875*ww), (.86*wh), 0.0);
+		glVertex3f((.7075*ww), (.86*wh), 0.0);
 		glVertex3f(ww, 0.0, 0.0);
 		glVertex3f((.98*ww), 0.0, 0.0);
 	glEnd();
@@ -460,7 +463,146 @@ void drawOldSC()
 void drawNewSC()
 // draw (un)highlighted new science center
 {
-	//
+	glBegin(GL_POLYGON);
+		glVertex3f((.3875*ww), (.48*wh), 0.0);	// top left
+		glVertex3f((.4875*ww), (.47*wh), 0.0);	// top right
+		glVertex3f((.49*ww), (.44*wh), 0.0);	// far bottom right
+		glVertex3f((.4688*ww), (.44*wh), 0.0);	// mid bottom 
+		glVertex3f((.3875*ww), (.4*wh), 0.0);	// bottom left
+	glEnd();
+}
+
+void drawBuildings()
+// draw buildings from West-East
+{
+	// 5t
+	glRectf((.07*ww), (.75*wh), (.095*ww), (.72*wh));
+	// Ecco
+	glRectf((.07*ww), (.68*wh), (.095*ww), (.65*wh));
+	// Bookstore
+	glRectf((.125*ww), (.69*wh), (.175*ww), (.62*wh));
+	// Norton Med
+	glRectf((.125*ww), (.56*wh), (.175*ww), (.42*wh));
+	// some house
+	glRectf((.1375*ww), (.24*wh), (.1625*ww), (.21*wh));
+	// Public Safety
+	// main building
+	glRectf((.1375*ww), (.19*wh), (.1625*ww), (.16*wh));
+	// entrance
+	glRectf((.15*ww), (.16*wh), (.1625*ww), (.14*wh));
+	// Art house
+	glRectf((.169*ww), (.37*wh), (.182*ww), (.35*wh));
+	// Counselling Center
+	glRectf((.186*ww), (.37*wh), (.21*ww), (.35*wh));
+	// Marshall Center
+	glRectf((.2125*ww), (.95*wh), (.23*ww), (.92*wh));
+	// Sem
+	glRectf((.2125*ww), (.9*wh), (.23*ww), (.88*wh));
+	// Global Ed
+	glRectf((.2125*ww), (.85*wh), (.23*ww), (.82*wh));
+	// Davis
+	// garage
+	glRectf((.215*ww), (.76*wh), (.22*ww), (.75*wh));
+	// main house
+	glRectf((.2125*ww), (.75*wh), (.23*ww), (.72*wh));
+	// doorway
+	glRectf((.22*ww), (.72*wh), (.227*ww), (.71*wh));
+	// life house
+	glRectf((.18*ww), (.71*wh), (.194*ww), (.69*wh));
+	// white house
+	glRectf((.2125*ww), (.63*wh), (.23*ww), (.6*wh));
+	// MAAD house
+	glRectf((.2125*ww), (.55*wh), (.23*ww), (.52*wh));
+	// Park hall
+	glRectf((.344*ww), (.9*wh), (.3625*ww), (.86*wh));
+	// Emerson
+	glRectf((.313*ww), (.78*wh), (.335*ww), (.69*wh));
+	// Jewish house
+	glRectf((.265*ww), (.55*wh), (.281*ww), (.53*wh));
+	// Mary Lyon
+	// street/campus entrances
+	glRectf((.42*ww), (.935*wh), (.4375*ww), (.885*wh));
+	// main building
+	glRectf((.41*ww), (.92*wh), (.444*ww), (.9*wh));
+	// Knapton
+	// top of hill
+	glRectf((.41*ww), (.85*wh), (.427*ww), (.79*wh));
+	// bottom of hill
+	glRectf((.427*ww), (.84*wh), (.444*ww), (.78*wh));
+	// Admissions
+	// doorway
+	glRectf((.41*ww), (.71*wh), (.427*ww), (.65*wh));
+	// building
+	glRectf((.41*ww), (.71*wh), (.45*ww), (.665*wh));
+	// Balfour
+	glBegin(GL_POLYGON);
+		glVertex3f((.415*ww), (.62*wh), 0.0);	// top left
+		glVertex3f((.481*ww), (.62*wh), 0.0);	// top right
+		glVertex3f((.494*ww), (.6*wh), 0.0);	// mid right
+		glVertex3f((.4625*ww), (.55*wh), 0.0);	// bottom right
+		glVertex3f((.4375*ww), (.58*wh), 0.0);	// bottom mid
+		glVertex3f((.415*ww), (.58*wh), 0.0);	// bottom left
+	glEnd();
+	// Registrar
+	glRectf((.407*ww), (.57*wh), (.42*ww), (.55*wh));
+	// Watson
+	glRectf((.45*ww), (.95*wh), (.484*ww), (.9*wh));	// main building
+	glRectf((.45*ww), (.94*wh), (.5*ww), (.91*wh));		// practice rooms
+	// Meneely
+	glBegin(GL_POLYGON);
+		glVertex3f((.456*ww), (.835*wh), 0.0);	// top right laser room
+		glVertex3f((.456*ww), (.85*wh), 0.0);	// top left
+		glVertex3f((.5063*ww), (.85*wh), 0.0);	// top right
+		glVertex3f((.5063*ww), (.82*wh), 0.0);	// bottom right
+		glVertex3f((.4813*ww), (.82*wh), 0.0);	// mid offices
+		glVertex3f((.4875*ww), (.81*wh), 0.0);	// mid art rooms
+		glVertex3f((.458*ww), (.8*wh), 0.0);	// mid left art rooms
+		glVertex3f((.456*ww), (.805*wh), 0.0);	// end of art rooms
+		glVertex3f((.45*ww), (.805*wh), 0.0);	// bottom laser cutter room
+		glVertex3f((.45*ww), (.835*wh), 0.0);	// top left laser room
+	glEnd();
+	// Power Plant
+	glRectf((.506*ww), (.62*wh), (.53125*ww), (.6*wh));
+	// Locksmith
+	glRectf((.506*ww), (.6*wh), (.515*ww), (.565*wh));
+	// Chase
+	glRectf((.5625*ww), (.84*wh), (.594*ww), (.82*wh));	// entrance
+	glRectf((.5625*ww), (.82*wh), (.58*ww), (.78*wh));	// connector
+	glRectf((.5625*ww), (.79*wh), (.594*ww), (.77*wh));	// square
+	// round
+	glTranslatef((.565*ww), (.835*wh), 0.0);			// put round in the right spot
+	gluDisk(gluNewQuadric(), 0.0, (.017*wh), 100, 1);	// draw chase round
+	glTranslatef((-.565*ww), (-.835*wh), 0.0);			// realign map
+	// Peace House
+	glRectf((.67*ww), (.89*wh), (.683*ww), (.86*wh));
+	// Outdoors
+	glBegin(GL_POLYGON);
+		glVertex3f((.7625*ww), (.594*wh), 0.0);			// top
+		glVertex3f((.775*ww), (.58*wh), 0.0);			// right
+		glVertex3f((.762*ww), (.555*wh), 0.0);			// bottom
+		glVertex3f((.75*ww), (.57*wh), 0.0);			// left
+	glEnd();
+	// TWAP
+	glBegin(GL_POLYGON);
+		glVertex3f((.8125*ww), (.45*wh), 0.0);			// top
+		glVertex3f((.825*ww), (.42*wh), 0.0);			// top right
+		glVertex3f((.813*ww), (.41*wh), 0.0);			// mid right
+		glVertex3f((.8105*ww), (.41*wh), 0.0);			// mid left
+		glVertex3f((.8*ww), (.44*wh), 0.0);				// top left
+	glEnd();
+	glBegin(GL_POLYGON);
+		glVertex3f((.817*ww), (.42*wh), 0.0);			// mid left
+		glVertex3f((.825*ww), (.4*wh), 0.0);			// bottom right
+		glVertex3f((.8125*ww), (.39*wh), 0.0);			// bottom
+		glVertex3f((.805*ww), (.405*wh), 0.0);			// bottom left
+	glEnd();
+	// Bears
+	glBegin(GL_POLYGON);
+		glVertex3f((.8375*ww), (.4*wh), 0.0);			// top
+		glVertex3f((.844*ww), (.38*wh), 0.0);			// right
+		glVertex3f((.835*ww), (.36*wh), 0.0);			// bottom
+		glVertex3f((.823*ww), (.38*wh), 0.0);			// left
+	glEnd();
 }
 
 int main (int argc, char** argv)
