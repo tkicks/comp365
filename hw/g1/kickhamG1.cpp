@@ -41,6 +41,20 @@ bool labels = false;
 bool roads = true;
 bool highlight[5];
 
+static float u = 1.0;		// curve parameter
+static float haasPoints[3][3] =
+{
+	{(.27*ww), (.39*wh), 0.0}, {(.34*ww), (.1*wh), 0.0}, {(.48*ww), (.32*wh), 0.0}
+};
+static float haasPoints2[3][3] =
+{
+	{(.27*ww), (.4*wh), 0.0}, {(.34*ww), (.1*wh), 0.0}, {(.48*ww), (.324*wh), 0.0}
+};
+static float haasPoints3[3][3] =
+{
+	{(.274*ww), (.401*wh), 0.0}, {(.34*ww), (.1*wh), 0.0}, {(.48*ww), (.327*wh), 0.0}
+};
+
 
 void display ()
 {
@@ -192,7 +206,27 @@ void drawRoads()
 
 	// Fillmore Drive
 	// Haas curve
-	// glLineWidth(4.0);
+	glLineWidth(10.0);
+	// glMap1f(target, t1, t2, stride, order, *control points)
+	// target - 1 means dimension, 3 means x, y, z coordinates
+	// t1, t2 - endpoints 
+	// stride - num floats between start for one control point and next
+	// order - num control points (coordinates in array)
+	// *cp - array of control points
+	glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3.0, 3.0, &haasPoints[0][0]);
+	glEnable(GL_MAP1_VERTEX_3);
+	glMapGrid1f(100, 0.0, 1.0);
+	glEvalMesh1(GL_LINE, 0, (int)(u*100));
+	glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3.0, 3.0, &haasPoints2[0][0]);
+	glEnable(GL_MAP1_VERTEX_3);
+	glMapGrid1f(100, 0.0, 1.0);
+	glEvalMesh1(GL_LINE, 0, (int)(u*100));
+	glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3.0, 3.0, &haasPoints3[0][0]);
+	glEnable(GL_MAP1_VERTEX_3);
+	glMapGrid1f(100, 0.0, 1.0);
+	glEvalMesh1(GL_LINE, 0, (int)(u*100));
+	// glLineWidth(1.0);		// reset line width to normal
+
 	// glBegin(GL_TRIANGLE_FAN);
 	// 	glVertex3f((.42*ww), (.2*wh), 0.0);
 	// 	glVertex3f((.25*ww), (.35*wh), 0.0);

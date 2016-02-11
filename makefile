@@ -13,6 +13,8 @@ menu:		menu.cpp
 parabola:		parabola.cpp
 		g++ parabola.cpp -o parabola $(CFLAGS)
 		
+deCasteljau3:		deCasteljau3.cpp
+		g++ deCasteljau3.cpp -o deCasteljau3 $(CFLAGS)
 
 clean:
 		rm *.o
