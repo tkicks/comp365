@@ -19,6 +19,8 @@ Output:		A computer graphic window will be displayed which will show the Wheaton
 #include <stdio.h>
 #include <GL/glut.h>
 #include <iostream>
+GLenum rgb;					// for tkmap.c
+#include "tkmap.c"
 using namespace std;
 
 class WheatonCollege
@@ -40,6 +42,7 @@ class WheatonCollege
 		void drawNewSC();
 		void drawBuildings();
 		void writeLabels();
+		void writeWords(char *letters, int number);
 };
 
 const int wh = 938;			// window height proportions based off of a 5x8 printout
@@ -701,8 +704,28 @@ void WheatonCollege::drawBuildings()
 void WheatonCollege::writeLabels()
 // write/erase labels
 {
-	string labels[7] = {"Rt 123", "library square", "Rt 140", "Taunton Ave", "Howard Street",
-		"Fillmore Drive", "Pine Street"};
+	WheatonCollege wheaton;
+	char letters[26] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
+		'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w',
+		'x', 'y', 'z'};
+	glColor3f(1.0, 1.0, 1.0);
+	glRasterPos2i((.48*ww), (.98*wh));
+	char words[13] = {'r', 't', 'e'};
+	wheaton.writeWords(words, 123);
+}
+
+void WheatonCollege::writeWords(char *letters, int number)
+// write words with numbers
+{
+	int i = 0;
+	while (letters[i] != '\0')
+	{
+		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, letters[i]);
+		i++;
+	}
+	glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, ' ');
+	glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, number);
+	glFlush();
 }
 
 int main (int argc, char** argv)
