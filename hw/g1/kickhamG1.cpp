@@ -108,6 +108,8 @@ void keyboard(unsigned char key, int x, int y)
 				  break;
 		case 'L': wheaton.toggleLabels();
 				  break;
+		case 27:	// esc
+		case 03:	// ctrl+c
 		case 'q': exit(1);
 	}
 }
