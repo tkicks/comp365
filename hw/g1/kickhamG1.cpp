@@ -21,19 +21,25 @@ Output:		A computer graphic window will be displayed which will show the Wheaton
 #include <iostream>
 using namespace std;
 
-void toggleLabels();
-void toggleRoads();
-void toggleHighlights(int building);
-void drawRoads();
-void drawParkingLots();
-void drawGrass();
-void drawHighlights(int building);
-void drawDorms();
-void drawHaas();
-void drawLibrary();
-void drawOldSC();
-void drawNewSC();
-void drawBuildings();
+class WheatonCollege
+{
+	public:
+		WheatonCollege() {};
+		~WheatonCollege() {};
+		void toggleLabels();
+		void toggleRoads();
+		void toggleHighlights(int building);
+		void drawRoads();
+		void drawParkingLots();
+		void drawGrass();
+		void drawHighlights(int building);
+		void drawDorms();
+		void drawHaas();
+		void drawLibrary();
+		void drawOldSC();
+		void drawNewSC();
+		void drawBuildings();
+};
 
 const int wh = 938;			// window height proportions based off of a 5x8 printout
 const int ww = 1500;		// window width proportions based off of a 5x8 printout
@@ -41,41 +47,44 @@ bool labels = false;
 bool roads = true;
 bool highlight[5];
 
+// curve data
 static float u = 1.0;		// curve parameter
-static float haasPoints[3][3] =
+// by Haas
+static float fillmorePoints[27][3] =
 {
-	{(.27*ww), (.39*wh), 0.0}, {(.34*ww), (.1*wh), 0.0}, {(.48*ww), (.32*wh), 0.0}
-};
-static float haasPoints2[3][3] =
-{
-	{(.27*ww), (.4*wh), 0.0}, {(.34*ww), (.1*wh), 0.0}, {(.48*ww), (.324*wh), 0.0}
-};
-static float haasPoints3[3][3] =
-{
-	{(.274*ww), (.401*wh), 0.0}, {(.34*ww), (.1*wh), 0.0}, {(.48*ww), (.327*wh), 0.0}
+	{(.27*ww), (.39*wh), 0.0}, {(.34*ww), (.1*wh), 0.0}, {(.48*ww), (.32*wh), 0.0},
+	{(.27*ww), (.4*wh), 0.0}, {(.34*ww), (.1*wh), 0.0}, {(.48*ww), (.324*wh), 0.0},
+	{(.274*ww), (.401*wh), 0.0}, {(.34*ww), (.1*wh), 0.0}, {(.48*ww), (.327*wh), 0.0},
+	{(.48*ww), (.327*wh), 0.0}, {(.5125*ww), (.42*wh), 0.0}, {(.5875*ww), (.48*wh), 0.0},
+	{(.477*ww), (.317*wh), 0.0}, {(.5125*ww), (.42*wh), 0.0}, {(.5875*ww), (.47*wh), 0.0},
+	{(.477*ww), (.316*wh), 0.0}, {(.5125*ww), (.42*wh), 0.0}, {(.5875*ww), (.476*wh), 0.0},
+	{(.5875*ww), (.479*wh), 0.0}, {(.69*ww), (.5*wh), 0.0}, {(.725*ww), (.6*wh), 0.0},
+	{(.5875*ww), (.476*wh), 0.0}, {(.69*ww), (.5*wh), 0.0}, {(.725*ww), (.592*wh), 0.0},
+	{(.5875*ww), (.471*wh), 0.0}, {(.69*ww), (.5*wh), 0.0}, {(.725*ww), (.591*wh), 0.0}
 };
 
 
 void display ()
 {
+	WheatonCollege wheaton;
 	// set up window
     glClear (GL_COLOR_BUFFER_BIT);
 
 	// draw the parking lots
-    drawParkingLots();
+    wheaton.drawParkingLots();
 
    	// draw the fields, dimple, and pond
-    drawGrass();
+    wheaton.drawGrass();
 
    	// draw the buildings that get highlighted
     for (int i = 0; i < 5; i++)
-   		drawHighlights(i);
+   		wheaton.drawHighlights(i);
 
    	// draw the buildings that don't get highlighted
-   	drawBuildings();
+   	wheaton.drawBuildings();
 
    	// draw the roads
-   	drawRoads();
+   	wheaton.drawRoads();
    
    	// draw
    	glFlush ();
@@ -83,20 +92,21 @@ void display ()
 
 void keyboard(unsigned char key, int x, int y)
 {
+	WheatonCollege wheaton;
 	switch(key) {
-		case 'c': toggleHighlights(0);
+		case 'c': wheaton.toggleHighlights(0);
 				  break;
-		case 'd': toggleHighlights(1);
+		case 'd': wheaton.toggleHighlights(1);
 				  break;
-		case 'f': toggleHighlights(2);
+		case 'f': wheaton.toggleHighlights(2);
 				  break;
-		case 'l': toggleHighlights(3);
+		case 'l': wheaton.toggleHighlights(3);
 				  break;
-		case 's': toggleHighlights(4);
+		case 's': wheaton.toggleHighlights(4);
 				  break;
-		case 'R': toggleRoads();
+		case 'R': wheaton.toggleRoads();
 				  break;
-		case 'L': toggleLabels();
+		case 'L': wheaton.toggleLabels();
 				  break;
 		case 'q': exit(1);
 	}
@@ -121,7 +131,7 @@ void init ()
    		highlight[i] = false;
 }
 
-void toggleLabels()
+void WheatonCollege::toggleLabels()
 // toggles the labels on the map
 // (doesn't currently have any text so can't test that yet)
 {
@@ -131,7 +141,7 @@ void toggleLabels()
 		labels = true;
 }
 
-void toggleRoads()
+void WheatonCollege::toggleRoads()
 // toggles the roads on the map
 {
 	if (roads == true)
@@ -146,7 +156,7 @@ void toggleRoads()
 	}
 }
 
-void toggleHighlights(int building)
+void WheatonCollege::toggleHighlights(int building)
 // toggle whether or not a building is highlighted
 // 0 = chapel, 1 = dorms, 2 = field house, 3 = library, 4 = science center
 {
@@ -169,7 +179,7 @@ void toggleHighlights(int building)
 	}
 }
 
-void drawRoads()
+void WheatonCollege::drawRoads()
 // draws roads, maps out from West to East
 // ww = window width, wh = window height
 {
@@ -205,7 +215,6 @@ void drawRoads()
 	glRectf((.1*ww), (.4*wh), (.275*ww), (.38*wh));
 
 	// Fillmore Drive
-	// Haas curve
 	glLineWidth(10.0);
 	// glMap1f(target, t1, t2, stride, order, *control points)
 	// target - 1 means dimension, 3 means x, y, z coordinates
@@ -213,27 +222,47 @@ void drawRoads()
 	// stride - num floats between start for one control point and next
 	// order - num control points (coordinates in array)
 	// *cp - array of control points
-	glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3.0, 3.0, &haasPoints[0][0]);
-	glEnable(GL_MAP1_VERTEX_3);
-	glMapGrid1f(100, 0.0, 1.0);
-	glEvalMesh1(GL_LINE, 0, (int)(u*100));
-	glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3.0, 3.0, &haasPoints2[0][0]);
-	glEnable(GL_MAP1_VERTEX_3);
-	glMapGrid1f(100, 0.0, 1.0);
-	glEvalMesh1(GL_LINE, 0, (int)(u*100));
-	glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3.0, 3.0, &haasPoints3[0][0]);
-	glEnable(GL_MAP1_VERTEX_3);
-	glMapGrid1f(100, 0.0, 1.0);
-	glEvalMesh1(GL_LINE, 0, (int)(u*100));
-	// glLineWidth(1.0);		// reset line width to normal
 
-	// glBegin(GL_TRIANGLE_FAN);
-	// 	glVertex3f((.42*ww), (.2*wh), 0.0);
-	// 	glVertex3f((.25*ww), (.35*wh), 0.0);
-	// 	glVertex3f((.5*ww), (.42*wh), 0.0);
-	// 	glVertex3f((.39*ww), (.3*wh), 0.0);
+	// Haas curve (3 times to get depth to lines)
+	glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3.0, 3.0, &fillmorePoints[0][0]);
+	glEnable(GL_MAP1_VERTEX_3);
+	glMapGrid1f(100, 0.0, 1.0);
+	glEvalMesh1(GL_LINE, 0, (int)(u*100));
+	glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3.0, 3.0, &fillmorePoints[3][0]);
+	glEnable(GL_MAP1_VERTEX_3);
+	glMapGrid1f(100, 0.0, 1.0);
+	glEvalMesh1(GL_LINE, 0, (int)(u*100));
+	glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3.0, 3.0, &fillmorePoints[6][0]);
+	glEnable(GL_MAP1_VERTEX_3);
+	glMapGrid1f(100, 0.0, 1.0);
+	glEvalMesh1(GL_LINE, 0, (int)(u*100));
+	// After Haas curve
+	glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3.0, 3.0, &fillmorePoints[9][0]);
+	glEnable(GL_MAP1_VERTEX_3);
+	glMapGrid1f(100, 0.0, 1.0);
+	glEvalMesh1(GL_LINE, 0, (int)(u*100));
+	glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3.0, 3.0, &fillmorePoints[12][0]);
+	glEnable(GL_MAP1_VERTEX_3);
+	glMapGrid1f(100, 0.0, 1.0);
+	glEvalMesh1(GL_LINE, 0, (int)(u*100));
+	glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3.0, 3.0, &fillmorePoints[15][0]);
+	glEnable(GL_MAP1_VERTEX_3);
+	glMapGrid1f(100, 0.0, 1.0);
+	glEvalMesh1(GL_LINE, 0, (int)(u*100));
+	// P4 curve
+	glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3.0, 3.0, &fillmorePoints[18][0]);
+	glEnable(GL_MAP1_VERTEX_3);
+	glMapGrid1f(100, 0.0, 1.0);
+	glEvalMesh1(GL_LINE, 0, (int)(u*100));
+	glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3.0, 3.0, &fillmorePoints[21][0]);
+	glEnable(GL_MAP1_VERTEX_3);
+	glMapGrid1f(100, 0.0, 1.0);
+	glEvalMesh1(GL_LINE, 0, (int)(u*100));
+	glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3.0, 3.0, &fillmorePoints[24][0]);
+	glEnable(GL_MAP1_VERTEX_3);
+	glMapGrid1f(100, 0.0, 1.0);
+	glEvalMesh1(GL_LINE, 0, (int)(u*100));
 
-	// glEnd();
 
 	// East end
 	glBegin(GL_POLYGON);
@@ -289,7 +318,7 @@ void drawRoads()
 	glFlush();
 }
 
-void drawParkingLots()
+void WheatonCollege::drawParkingLots()
 // draws parking lots from West to East
 {
 	// color parking lots grey
@@ -317,6 +346,11 @@ void drawParkingLots()
 	glRectf((.575*ww), (.6*wh), (.65*ww), (.54*wh));
 	// lower lot
 	glRectf((.6125*ww), (.54*wh), (.65*ww), /*(.46*wh)*/(.5*wh));
+	glBegin(GL_TRIANGLES);
+		glVertex3f((.6125*ww), (.5*wh), 0.0);
+		glVertex3f((.6125*ww), (.48*wh), 0.0);
+		glVertex3f((.65*ww), (.5*wh), 0.0);
+	glEnd();
 
 	// P3
 	// soccer fields going clockwise
@@ -350,7 +384,7 @@ void drawParkingLots()
 	glFlush();
 }
 
-void drawGrass()
+void WheatonCollege::drawGrass()
 // draws fields, dimple, and pond from West to East
 {
 	// make grass a dark green
@@ -361,8 +395,6 @@ void drawGrass()
 
 	// Chapel Field
 	glRectf((.475*ww), (.8*wh), (.5*ww), (.68*wh));
-
-	// Peacock Pond
 
 	// Turf Field
 	glBegin(GL_POLYGON);
@@ -387,9 +419,31 @@ void drawGrass()
 		glVertex3f((.745*ww), (.39*wh), 0.0);
 		glVertex3f((.7*ww), (.425*wh), 0.0);
 	glEnd();
+
+	glColor3f(0.0, 0.0, 0.7);
+	// Peacock Pond
+	glRectf((.533*ww), (.88*wh), (.55*ww), (.76*wh));
+	// top
+	float width = .5445;
+	for (int i = 0; i < 2; i++)
+	{
+		glTranslatef((width*ww), (.89*wh), 0.0);			// put pond in the right spot
+		gluDisk(gluNewQuadric(), 0.0, (.03*wh), 100, 1);	// draw north side of pond
+		glTranslatef((-width*ww), (-.89*wh), 0.0);			// realign map
+		width += .007;
+	}
+	// bottom
+	width = .54;
+	for (int i = 0; i < 4; i++)
+	{
+		glTranslatef((width*ww), (.73*wh), 0.0);			// put pond in the right spot
+		gluDisk(gluNewQuadric(), 0.0, (.034*wh), 100, 1);	// draw south side of pond
+		glTranslatef((-width*ww), (-.73*wh), 0.0);			// realign map
+		width += .01;
+	}
 }
 
-void drawHighlights(int building)
+void WheatonCollege::drawHighlights(int building)
 // draw the highlighted buildings from West to East
 {
 	if (highlight[building] == true)
@@ -418,7 +472,7 @@ void drawHighlights(int building)
 	glFlush();
 }
 
-void drawDorms()
+void WheatonCollege::drawDorms()
 // draws dorms
 {
 	// Beard
@@ -459,7 +513,7 @@ void drawDorms()
 	glRectf((.594*ww), (.64*wh), (.656*ww), (.61*wh));
 }
 
-void drawHaas()
+void WheatonCollege::drawHaas()
 // draw Haas (un)highlighted
 {
 	// Westernmost square
@@ -472,7 +526,7 @@ void drawHaas()
 	glRectf((.444*ww), (.18*wh), (.5125*ww), (.12*wh));
 }
 
-void drawLibrary()
+void WheatonCollege::drawLibrary()
 // draw (un)highlighted library
 {
 	// doorway
@@ -481,7 +535,7 @@ void drawLibrary()
 	glRectf((.354*ww), (.55*wh), (.397*ww), (.5*wh));
 }
 
-void drawOldSC()
+void WheatonCollege::drawOldSC()
 // draw (un)highlighted old science center
 {
 	// Kollet Center (second wh is top of P9)
@@ -494,7 +548,7 @@ void drawOldSC()
 	glRectf((.36*ww), (.41*wh), (.376*ww), (.4*wh));
 }
 
-void drawNewSC()
+void WheatonCollege::drawNewSC()
 // draw (un)highlighted new science center
 {
 	glBegin(GL_POLYGON);
@@ -506,7 +560,7 @@ void drawNewSC()
 	glEnd();
 }
 
-void drawBuildings()
+void WheatonCollege::drawBuildings()
 // draw buildings from West-East
 {
 	// 5t
