@@ -42,7 +42,7 @@ class WheatonCollege
 		void drawNewSC();
 		void drawBuildings();
 		void writeLabels();
-		void writeWords(char *letters, int number);
+		void writeWords(float x, float y, const char label[]);
 };
 
 const int wh = 938;			// window height proportions based off of a 5x8 printout
@@ -155,6 +155,7 @@ void WheatonCollege::toggleRoads()
 	if (roads == true)
 	{
 		roads = false;
+		labels = false;
 		drawRoads();
 	}
 	else
@@ -191,12 +192,16 @@ void WheatonCollege::drawRoads()
 // draws roads, maps out from West to East
 // ww = window width, wh = window height
 {
+	glEnable (GL_BLEND);
+	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	if (roads == 1)
 		// set road color to black
-   		glColor3f(0.0, 0.0, 0.0);
+   		glColor4f(0.0, 0.0, 0.0, 1.0);
+  
    	else
-   		// set road color to green for the grass
-   		glColor3f(0.0, 0.5, 0.0);
+   		// set alpha to 0 to be transparent (set a value to 0.0)
+   		glColor4f(0.0, 0.5, 0.0, 1.0);
+  
 
 	// Rt 123
 	glRectf((.25*ww), wh, ww, (.98*wh));
@@ -705,26 +710,28 @@ void WheatonCollege::writeLabels()
 // write/erase labels
 {
 	WheatonCollege wheaton;
-	char letters[26] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
-		'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w',
-		'x', 'y', 'z'};
-	glColor3f(1.0, 1.0, 1.0);
-	glRasterPos2i((.48*ww), (.98*wh));
-	char words[13] = {'r', 't', 'e'};
-	wheaton.writeWords(words, 123);
+	
+	// Road labels (color white)
+	if (labels == true)
+		glColor3f(1.0, 1.0, 1.0);
+	else if (labels == false and roads == true)
+		glColor3f(0.0, 0.0, 0.0);
+	else
+		glColor3f(0.0, 0.5, 0.0);
+	// RT 123
+	wheaton.writeWords(.48, .985, "Rt 123");
 }
 
-void WheatonCollege::writeWords(char *letters, int number)
-// write words with numbers
+void WheatonCollege::writeWords(float x, float y, const char label[])
 {
 	int i = 0;
-	while (letters[i] != '\0')
+	glRasterPos2i((x*ww), y*wh);
+	while (label[i] != '\0')
 	{
-		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, letters[i]);
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, label[i]);
 		i++;
 	}
-	glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, ' ');
-	glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, number);
+
 	glFlush();
 }
 
