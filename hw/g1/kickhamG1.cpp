@@ -39,6 +39,7 @@ class WheatonCollege
 		void drawOldSC();
 		void drawNewSC();
 		void drawBuildings();
+		void writeLabels();
 };
 
 const int wh = 938;			// window height proportions based off of a 5x8 printout
@@ -137,10 +138,12 @@ void WheatonCollege::toggleLabels()
 // toggles the labels on the map
 // (doesn't currently have any text so can't test that yet)
 {
+	WheatonCollege wheaton;
 	if (labels == true)
 		labels = false;
 	else
 		labels = true;
+	wheaton.writeLabels();
 }
 
 void WheatonCollege::toggleRoads()
@@ -693,6 +696,13 @@ void WheatonCollege::drawBuildings()
 		glVertex3f((.835*ww), (.36*wh), 0.0);			// bottom
 		glVertex3f((.823*ww), (.38*wh), 0.0);			// left
 	glEnd();
+}
+
+void WheatonCollege::writeLabels()
+// write/erase labels
+{
+	string labels[7] = {"Rt 123", "library square", "Rt 140", "Taunton Ave", "Howard Street",
+		"Fillmore Drive", "Pine Street"};
 }
 
 int main (int argc, char** argv)
