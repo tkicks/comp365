@@ -2,7 +2,7 @@
 Name:		Tyler Kickham
 Program:	Interactive Wheaton College campus map
 Purpose:	Use C++ and OpenGL to create an interactive map of the Wheaton College campus
-Input:		The user will input using the keyboard (will add mouse for menu functionality to click name of a building to be highlighted)
+Input:		The user will input using the keyboard
 			to: c - highlight the chapel
 				d - highlight all dorms
 				f - highlight the field house
@@ -10,10 +10,13 @@ Input:		The user will input using the keyboard (will add mouse for menu function
 				s - highlight Mars Science Center
 				R - toggle roads on/off
 				L - toggle labels on/off
+			or left-click the mouse to bring up a menu with the same options to click on
 Output:		A computer graphic window will be displayed which will show the Wheaton College
-			campus map, drawn with all buildings, paths, roads, and geographical features.
-			Labels will be available to be toggled on/off (not sure of default yet).
+			campus map, drawn with buildings, roads, and geographical features.
+			Labels will be available to be toggled on/off.
 			See input for list of interactions with map which will change the output.
+			Menu functionality buggy. Mouse click "erases" labels. SC (un)highlights all buildings
+			that wouldn't otherwise be (un)highlighted upon second click of mouse.
 */
 
 #include <stdio.h>
@@ -50,15 +53,17 @@ class WheatonCollege
 		void checkToggle(int index);
 };
 
+void menu(int menuVal);
+
 const int wh = 938;			// window height proportions based off of a 5x8 printout
 const int ww = 1500;		// window width proportions based off of a 5x8 printout
-bool labels = false;
-bool roads = true;
-bool highlight[5];
+bool labels = false;		// states whether labels are displayed
+bool roads = true;			// states whether roads are displayed
+bool highlight[5];			// array of bools for each possible highlighted location
 
 // curve data
-static float u = 1.0;		// curve parameter
-// by Haas
+static float u = 1.0;		// curve parameter for Fillmore Dr
+// coordinates for making the curve of Fillmore Dr
 static float fillmorePoints[27][3] =
 {
 	{(.27*ww), (.39*wh), 0.0}, {(.34*ww), (.1*wh), 0.0}, {(.48*ww), (.32*wh), 0.0},
@@ -74,8 +79,10 @@ static float fillmorePoints[27][3] =
 
 
 void display ()
+// INPUT: none	OUTPUT: none
+// create the display
 {
-	WheatonCollege wheaton;
+	WheatonCollege wheaton;			// instantiate a class object
 	// set up window
     glClear (GL_COLOR_BUFFER_BIT);
 
@@ -100,30 +107,34 @@ void display ()
 }
 
 void keyboard(unsigned char key, int x, int y)
+// INPUT: char of key pressed, current x, y locations	OUTPUT: none
+// determine what to do based on key pressed
 {
-	WheatonCollege wheaton;
+	WheatonCollege wheaton;			// instantiate a class object
 	switch(key) {
-		case 'c': wheaton.toggleHighlights(0);
+		case 'c': wheaton.toggleHighlights(0);	// toggle chapel
 				  break;
-		case 'd': wheaton.toggleHighlights(1);
+		case 'd': wheaton.toggleHighlights(1);	// toggle dorms
 				  break;
-		case 'f': wheaton.toggleHighlights(2);
+		case 'f': wheaton.toggleHighlights(2);	// toggle field house
 				  break;
-		case 'l': wheaton.toggleHighlights(3);
+		case 'l': wheaton.toggleHighlights(3);	// toggle library
 				  break;
-		case 's': wheaton.toggleHighlights(4);
+		case 's': wheaton.toggleHighlights(4);	// toggle science center
 				  break;
-		case 'R': wheaton.toggleRoads();
+		case 'R': wheaton.toggleRoads();		// toggle roads
 				  break;
-		case 'L': wheaton.toggleLabels();
+		case 'L': wheaton.toggleLabels();		// toggle labels
 				  break;
 		case 27:	// esc
 		case 03:	// ctrl+c
-		case 'q': exit(1);
+		case 'q': exit(1);						// quit
 	}
 }
 
 void init ()
+// INPUT: none	OUTPUT: none
+// initiate windows and set up coordinate locations
 {
 	glPixelStorei (GL_UNPACK_ALIGNMENT, 1);
 
@@ -143,42 +154,44 @@ void init ()
 }
 
 void WheatonCollege::toggleLabels()
+// INPUT: none	OUTPUT: none
 // toggles the labels on the map
-// (doesn't currently have any text so can't test that yet)
 {
-	WheatonCollege wheaton;
-	if (labels == true)
-		labels = false;
-	else
-		labels = true;
-	wheaton.writeLabels();
+	WheatonCollege wheaton;		// instantiate class object
+	if (labels == true)			// if labels are on
+		labels = false;			// turn off
+	else						// otherwise
+		labels = true;			// turn on
+	wheaton.writeLabels();		// make labels
 }
 
 void WheatonCollege::toggleRoads()
+// INPUT: none	OUTPUT: none
 // toggles the roads on the map
 {
-	if (roads == true)
+	WheatonCollege wheaton;		// instantiate class object
+	if (roads == true)			// if roads are on
 	{
-		roads = false;
-		labels = false;
-		drawRoads();
+		roads = false;			// turn off
+		labels = false;			// turn off labels (will only turn off road labels)
 	}
-	else
-	{
-		roads = true;
-		drawRoads();
-	}
+	else						// otherwise
+		roads = true;			// turn on
+	wheaton.drawRoads();		// draw roads
 }
 
 void WheatonCollege::toggleHighlights(int building)
-// toggle whether or not a building is highlighted
+// INPUT: integer value for each building to be (un)highlighted
 // 0 = chapel, 1 = dorms, 2 = field house, 3 = library, 4 = science center
+// toggle whether or not a building is highlighted
 {
+	// if particular building isn't highlighted, highlight, vice versa
 	if (highlight[building] == false)
 		highlight[building] = true;
 	else
 		highlight[building] = false;
 
+	// see which building just got (un)highlighted and draw it
 	switch(building) {
 		case 0:	drawHighlights(building);
 				break;
@@ -194,18 +207,17 @@ void WheatonCollege::toggleHighlights(int building)
 }
 
 void WheatonCollege::drawRoads()
+// INPUT: none	OUTPUT: none
 // draws roads, maps out from West to East
-// ww = window width, wh = window height
+// ww = window width, wh = window height (global variables)
 {
-	glEnable (GL_BLEND);
-	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	if (roads == 1)
+	if (roads)
 		// set road color to black
-   		glColor4f(0.0, 0.0, 0.0, 1.0);
+   		glColor3f(0.0, 0.0, 0.0);
   
    	else
-   		// set alpha to 0 to be transparent (set a value to 0.0)
-   		glColor4f(0.0, 0.5, 0.0, 1.0);
+   		// set road color to green (same as background)
+   		glColor3f(0.0, 0.5, 0.0);
   
 
 	// Rt 123
@@ -337,6 +349,7 @@ void WheatonCollege::drawRoads()
 }
 
 void WheatonCollege::drawParkingLots()
+// INPUT: none	OUTPUT: none
 // draws parking lots from West to East
 {
 	// color parking lots grey
@@ -403,6 +416,7 @@ void WheatonCollege::drawParkingLots()
 }
 
 void WheatonCollege::drawGrass()
+// INPUT: none	OUTPUT: none
 // draws fields, dimple, and pond from West to East
 {
 	// make grass a dark green
@@ -462,26 +476,24 @@ void WheatonCollege::drawGrass()
 }
 
 void WheatonCollege::drawHighlights(int building)
+// INPUT: integer depicting building id value	OUTPUT: none
 // draw the highlighted buildings from West to East
 {
-	if (highlight[building] == true)
+	if (highlight[building])			// if building is highlighted
 		glColor3f(1.0, 1.0, 1.0);		// set color to white
 	else
 		glColor3f(.55, .27, .07);		// set color to brown
 	switch(building) {
-		// (un)highlight chapel
-		case 0:	glRectf((.407*ww), (.77*wh), (.444*ww), (.74*wh));
+		case 0:	glRectf((.407*ww), (.77*wh), (.444*ww), (.74*wh));	// (un)highlight chapel
 				break;
-		// (un)highlight dorms
-		case 1:	drawDorms();
+		case 1:	drawDorms();	// (un)highlight dorms
 				break;
-		// (un)highlight field house (HAAS)
-		case 2: drawHaas();
+		case 2: drawHaas();		// (un)highlight field house (HAAS)
 				break;
-		case 3: drawLibrary();
+		case 3: drawLibrary();	// (un)highlight library
 				break;
-		case 4: drawOldSC();
-				drawNewSC();
+		case 4: drawOldSC();	// (un)highlight old SC
+				drawNewSC();	// (un)highlight new SC
 				break;
 		default: break;
 	}
@@ -491,6 +503,7 @@ void WheatonCollege::drawHighlights(int building)
 }
 
 void WheatonCollege::drawDorms()
+// INPUT: none	OUTPUT: none
 // draws dorms
 {
 	// Beard
@@ -532,6 +545,7 @@ void WheatonCollege::drawDorms()
 }
 
 void WheatonCollege::drawHaas()
+// INPUT: none	OUTPUT: none
 // draw Haas (un)highlighted
 {
 	// Westernmost square
@@ -545,6 +559,7 @@ void WheatonCollege::drawHaas()
 }
 
 void WheatonCollege::drawLibrary()
+// INPUT: none	OUTPUT: none
 // draw (un)highlighted library
 {
 	// doorway
@@ -554,6 +569,7 @@ void WheatonCollege::drawLibrary()
 }
 
 void WheatonCollege::drawOldSC()
+// INPUT: none	OUTPUT: none
 // draw (un)highlighted old science center
 {
 	// Kollet Center (second wh is top of P9)
@@ -567,6 +583,7 @@ void WheatonCollege::drawOldSC()
 }
 
 void WheatonCollege::drawNewSC()
+// INPUT: none	OUTPUT: none
 // draw (un)highlighted new science center
 {
 	glBegin(GL_POLYGON);
@@ -579,6 +596,7 @@ void WheatonCollege::drawNewSC()
 }
 
 void WheatonCollege::drawBuildings()
+// INPUT: none	OUTPUT: none
 // draw buildings from West-East
 {
 	// 5t
@@ -712,6 +730,7 @@ void WheatonCollege::drawBuildings()
 }
 
 void WheatonCollege::writeLabels()
+// INPUT: none	OUTPUT: none
 // write/erase labels
 {
 	WheatonCollege wheaton;
@@ -723,15 +742,16 @@ void WheatonCollege::writeLabels()
 }
 
 void WheatonCollege::roadLabels()
+// INPUT: none	OUTPUT: none
 // create labels for roads
 {
-	WheatonCollege wheaton;
-	// Road labels (color white)
-	if (labels == true)
+	WheatonCollege wheaton;			// instantiate class object
+	// Road labels
+	if (labels)										// if labels are on make white
 		glColor3f(1.0, 1.0, 1.0);
-	else if (labels == false and roads == true)
+	else if (labels == false and roads == true)		// if labels are off and roads are on make text match roads
 		glColor3f(0.0, 0.0, 0.0);
-	else
+	else											// otherwise make text green to match background
 		glColor3f(0.0, 0.5, 0.0);
 
 	wheaton.writeWords(.48, .985, "East Main St");
@@ -742,9 +762,9 @@ void WheatonCollege::roadLabels()
 	wheaton.writeWords(.815, .5, "4");				// Pine St
 	// Parking lots
 	if (labels == true)
-		glColor3f(1.0, 1.0, 1.0);
+		glColor3f(1.0, 1.0, 1.0);					// if labels are on make white
 	else
-		glColor3f(0.5, 0.5, 0.5);
+		glColor3f(0.5, 0.5, 0.5);					// if labels are off make grey
 	wheaton.writeWords(.16, .82, "Lot 10");
 	wheaton.writeWords(.324, .33, "Lot 9");
 	wheaton.writeWords(.33, .12, "Lot 8");
@@ -754,59 +774,62 @@ void WheatonCollege::roadLabels()
 }
 
 void WheatonCollege::buildingLabels()
+// INPUT: none	OUTPUT: none
 // create labels for highlightable buildings
 {
-	WheatonCollege wheaton;
-	wheaton.checkToggle(0);
-	wheaton.writeWords(.41, .755, "Chapel");
-	wheaton.checkToggle(1);
-	wheaton.writeWords(.24, .34, "Beard");
-	wheaton.writeWords(.263, .93, "Kilham");
-	wheaton.writeWords(.302, .93, "Metcalf");
-	wheaton.writeWords(.283, .83, "Chapin");
-	wheaton.writeWords(.315, .806, "Lar");
-	wheaton.writeWords(.315, .795, "com");
-	wheaton.writeWords(.27, .765, "Emerson");
-	wheaton.writeWords(.27, .752, "House");
-	wheaton.writeWords(.27, .59, "Everett");
-	wheaton.writeWords(.26, .45, "Keefe");
-	wheaton.writeWords(.29, .5, "Gebbie");
-	wheaton.writeWords(.325, .667, "Cra");
-	wheaton.writeWords(.325, .656, "gin");
-	wheaton.writeWords(.312, .582, "Stan");
-	wheaton.writeWords(.3121, .569, "ton");
-	wheaton.writeWords(.574, .9, "Clark");
-	wheaton.writeWords(.608, .86, "Mac");
-	wheaton.writeWords(.6375, .9, "Young");
-	wheaton.writeWords(.618, .71, "Meadows");
-	wheaton.writeWords(.618, .7, "North");
-	wheaton.writeWords(.595, .62, "West");
-	wheaton.writeWords(.638, .62, "East");
-	wheaton.checkToggle(2);
-	wheaton.writeWords(.45, .16, "Field House");
-	wheaton.checkToggle(3);
-	wheaton.writeWords(.36, .52, "Library");
-	wheaton.checkToggle(4);
-	wheaton.writeWords(.33, .38, "Science");
-	wheaton.writeWords(.34, .36, "Center");
-	wheaton.writeWords(.39, .455, "Science");
-	wheaton.writeWords(.4, .435, "Center");
+	WheatonCollege wheaton;						// instantiate class object
+	wheaton.checkToggle(0);						// check if chapel is highlighted
+	wheaton.writeWords(.41, .755, "Chapel");	// write width%, height%, label
+	wheaton.checkToggle(1);						// check if dorms highlighted
+	wheaton.writeWords(.24, .34, "Beard");		// write width%, height%, label
+	wheaton.writeWords(.263, .93, "Kilham");	// write width%, height%, label
+	wheaton.writeWords(.302, .93, "Metcalf");	// write width%, height%, label
+	wheaton.writeWords(.283, .83, "Chapin");	// write width%, height%, label
+	wheaton.writeWords(.315, .806, "Lar");		// write width%, height%, label
+	wheaton.writeWords(.315, .795, "com");		// write width%, height%, label
+	wheaton.writeWords(.27, .765, "Emerson");	// write width%, height%, label
+	wheaton.writeWords(.27, .752, "House");		// write width%, height%, label
+	wheaton.writeWords(.27, .59, "Everett");	// write width%, height%, label
+	wheaton.writeWords(.26, .45, "Keefe");		// write width%, height%, label
+	wheaton.writeWords(.29, .5, "Gebbie");		// write width%, height%, label
+	wheaton.writeWords(.325, .667, "Cra");		// write width%, height%, label
+	wheaton.writeWords(.325, .656, "gin");		// write width%, height%, label
+	wheaton.writeWords(.312, .582, "Stan");		// write width%, height%, label
+	wheaton.writeWords(.3121, .569, "ton");		// write width%, height%, label
+	wheaton.writeWords(.574, .9, "Clark");		// write width%, height%, label
+	wheaton.writeWords(.608, .86, "Mac");		// write width%, height%, label
+	wheaton.writeWords(.6375, .9, "Young");		// write width%, height%, label
+	wheaton.writeWords(.618, .71, "Meadows");	// write width%, height%, label
+	wheaton.writeWords(.618, .7, "North");		// write width%, height%, label
+	wheaton.writeWords(.595, .62, "West");		// write width%, height%, label
+	wheaton.writeWords(.638, .62, "East");		// write width%, height%, label
+	wheaton.checkToggle(2);						// check if HAAS highlighted
+	wheaton.writeWords(.45, .16, "Field House");	// write width%, height%, label
+	wheaton.checkToggle(3);						// check if library highlighted
+	wheaton.writeWords(.36, .52, "Library");	// write width%, height%, label
+	wheaton.checkToggle(4);						// check if SC highlighted
+	wheaton.writeWords(.33, .38, "Science");	// write width%, height%, label
+	wheaton.writeWords(.34, .36, "Center");		// write width%, height%, label
+	wheaton.writeWords(.39, .455, "Science");	// write width%, height%, label
+	wheaton.writeWords(.4, .435, "Center");		// write width%, height%, label
 }
 
 void WheatonCollege::adminLabels()
+// INPUT: none	OUTPUT: none
 // label administrative and academic buildings
 {
-	WheatonCollege wheaton;
+	WheatonCollege wheaton;			// instantiate class object
+	// if labels on, make text white, else make text brown
 	if (labels)
 		glColor3f(1.0, 1.0, 1.0);
 	else
 		glColor3f(.55, .27, .07);
 
+	// write %width, %height, label
 	wheaton.writeWords(.13, .67, "Bookstore");
 	wheaton.writeWords(.127, .5, "Norton Med");
 	wheaton.writeWords(.346, .89, "Park");
 	wheaton.writeWords(.346, .87, "Hall");
-	wheaton.writeWords(.33, .38, "Science");
 	wheaton.writeWords(.315, .74, "Emer");
 	wheaton.writeWords(.315, .73, "son");
 	wheaton.writeWords(.427, .91, "3");
@@ -819,15 +842,17 @@ void WheatonCollege::adminLabels()
 }
 
 void WheatonCollege::otherLabels()
+// INPUT: none	OUTPUT: none
 // make the rest of the labels
 {
-	WheatonCollege wheaton;
-	// grass
+	WheatonCollege wheaton;		// instantiate class object
+	// if labels on make text white, else make text green
 	if (labels)
 		glColor3f(1.0, 1.0, 1.0);
 	if (!labels)
 		glColor3f(0.0, 0.2, 0.0);
 
+	// write %width, %height, label
 	wheaton.writeWords(.36, .74, "Dimple");
 	wheaton.writeWords(.475, .74, "Chapel");
 	wheaton.writeWords(.48, .72, "Field");
@@ -837,11 +862,13 @@ void WheatonCollege::otherLabels()
 	wheaton.writeWords(.72, .48, "Men's");
 	wheaton.writeWords(.73, .46, "Soccer");
 
+	// if labels off make text blue and "erase" pond label
 	if (!labels)
 		glColor3f(0.0, 0.0, 0.7);
 
 	wheaton.writeWords(.53, .735, "Peacock Pond");
 
+	// if labels off make text dark green and "erase" grass labels
 	if (!labels)
 		glColor3f(0.0, 0.5, 0.0);
 
@@ -852,31 +879,95 @@ void WheatonCollege::otherLabels()
 }
 
 void WheatonCollege::checkToggle(int index)
+// INPUT: index of highlight array	OUTPUT: none
 // check if a building is highlighted
 {
-	if (labels && highlight[index])
-		glColor3f(0.0, 0.0, 0.0);
-	else if ((labels && highlight[index] == false) or (!labels && highlight[index]))
+	if (labels && highlight[index])	// if labels on and index is true
+		glColor3f(0.0, 0.0, 0.0);	// make black
+	// if labels and false, or no labels and true make white
+	else if ((labels && !highlight[index]) or (!labels && highlight[index]))
 		glColor3f(1.0, 1.0, 1.0);
+	// if no labels and highlight is false
 	else if (!labels && !highlight[index])
 		glColor3f(.55, .27, .07);
 }
 
 void WheatonCollege::writeWords(float x, float y, const char label[])
+// INPUT: x, y coordinates, char array of label 	OUTPUT: none
+// writes each letter to the map
 {
-	int i = 0;
-	glRasterPos2i((x*ww), y*wh);
+	int i = 0;						// iterator
+	glRasterPos2i((x*ww), y*wh);	// position w/ x,y% coordinates
+	// while more chars, write to map
 	while (label[i] != '\0')
 	{
 		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, label[i]);
 		i++;
 	}
 
-	glFlush();
+	glFlush();	// draw
+}
+
+void initMenu()
+// INPUT: none	OUTPUT: none
+// initiate the menu on mouse click
+{
+	// create menu and add options to it
+	glutCreateMenu(menu);						// call menu function
+	glutAddMenuEntry("Highlight Chapel", 0);
+	glutAddMenuEntry("Highlight dorms", 1);
+	glutAddMenuEntry("Highlight field house", 2);
+	glutAddMenuEntry("Highlight library", 3);
+	glutAddMenuEntry("Highlight Science Center", 4);
+	glutAddMenuEntry("Toggle roads", 5);
+	glutAddMenuEntry("Toggle labels", 6);
+	glutAddMenuEntry("Quit", 7);
+	glutAttachMenu(GLUT_LEFT_BUTTON);			// attach menu to left click action
+}
+
+void menu (int menuVal)
+// INPUT: value of menu option clicked	OUTPUT: none
+// what each item in the menu does based on assigned value
+{
+	WheatonCollege wheaton;		// instantiate class object
+	// toggle objects based on menu value selected
+	switch (menuVal) {
+		case 0: wheaton.toggleHighlights(0);
+				  break;
+		case 1: wheaton.toggleHighlights(1);
+				  break;
+		case 2: wheaton.toggleHighlights(2);
+				  break;
+		case 3: wheaton.toggleHighlights(3);
+				  break;
+		case 4: wheaton.toggleHighlights(4);
+				  break;
+		case 5: wheaton.toggleRoads();
+				  break;
+		case 6: wheaton.toggleLabels();
+				  break;
+		case 7:	exit(1);	
+	}
 }
 
 int main (int argc, char** argv)
+// INPUT: none	OUTPUT: none
+// main function, calls other functions
 {
+	// console instructions
+	cout << "'c' - highlight Chapel\n"
+		 << "'d' - highlight dorms\n"
+		 << "'f' - highlight field house\n"
+		 << "'l' - highlight library\n"
+		 << "'s' - highlight Science Center\n"
+		 << "'R' - toggle roads on/off\n"
+		 << "'L' - toggle labels on/off\n"
+		 << "'q', esc, ctrl+c - quit program\n"
+		 << "Labels on roads/highlighted buildings toggled off when road/building is toggled\n"
+		 << "Left click to access menu\n"
+		 << "Calling menu will erase labels, selecting Science Center and clicking again will highlight all buildings that wouldn't otherwise be highlighted\n";
+	
+	// initiate window/viewport
 	glutInit(&argc, argv);
 	glutInitDisplayMode (GLUT_SINGLE | GLUT_RGB);
 
@@ -891,6 +982,9 @@ int main (int argc, char** argv)
 
 	// initialize
 	init ();
+
+	// initialize menu
+	initMenu();
 
 	// continuously call keyboard function
 	glutKeyboardFunc(keyboard);
