@@ -42,7 +42,10 @@ class WheatonCollege
 		void drawNewSC();
 		void drawBuildings();
 		void writeLabels();
+		void roadLabels();
+		void buildingLabels();
 		void writeWords(float x, float y, const char label[]);
+		void checkToggle(int index);
 };
 
 const int wh = 938;			// window height proportions based off of a 5x8 printout
@@ -711,6 +714,14 @@ void WheatonCollege::writeLabels()
 {
 	WheatonCollege wheaton;
 	
+	wheaton.roadLabels();
+	wheaton.buildingLabels();
+}
+
+void WheatonCollege::roadLabels()
+// create labels for roads
+{
+	WheatonCollege wheaton;
 	// Road labels (color white)
 	if (labels == true)
 		glColor3f(1.0, 1.0, 1.0);
@@ -718,8 +729,44 @@ void WheatonCollege::writeLabels()
 		glColor3f(0.0, 0.0, 0.0);
 	else
 		glColor3f(0.0, 0.5, 0.0);
-	// RT 123
-	wheaton.writeWords(.48, .985, "Rt 123");
+
+	wheaton.writeWords(.48, .985, "East Main St");
+	wheaton.writeWords(.17, .385, "Howard St");
+	wheaton.writeWords(.105, .5, "3");				// Taunton Ave
+	wheaton.writeWords(.24, .7, "#");				// Howard
+	wheaton.writeWords(.352, .2269, "Fillmore Dr");
+	wheaton.writeWords(.815, .5, "#");				// Pine St
+	// Parking lots
+	if (labels == true)
+		glColor3f(1.0, 1.0, 1.0);
+	else
+		glColor3f(0.5, 0.5, 0.5);
+	wheaton.writeWords(.16, .82, "Lot 10");
+	wheaton.writeWords(.324, .33, "Lot 9");
+	wheaton.writeWords(.33, .12, "Lot 8");
+	wheaton.writeWords(.488, .21, "Lot 7");
+	wheaton.writeWords(.6, .57, "Lot 4");
+	wheaton.writeWords(.81, .2, "Lot 3");
+}
+
+void WheatonCollege::buildingLabels()
+// create labels for buildings
+{
+	WheatonCollege wheaton;
+	// highlightable buildings
+	wheaton.checkToggle(0);
+	wheaton.writeWords(.41, .755, "Chapel");
+}
+
+void WheatonCollege::checkToggle(int index)
+// check if a building is highlighted
+{
+	if (labels && highlight[index])
+		glColor3f(0.0, 0.0, 0.0);
+	else if ((labels && highlight[index] == false) or (!labels && highlight[index]))
+		glColor3f(1.0, 1.0, 1.0);
+	else if (!labels && highlight[index])
+		glColor3f(.55, .27, .07);
 }
 
 void WheatonCollege::writeWords(float x, float y, const char label[])
