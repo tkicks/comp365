@@ -44,6 +44,8 @@ class WheatonCollege
 		void writeLabels();
 		void roadLabels();
 		void buildingLabels();
+		void adminLabels();
+		void otherLabels();
 		void writeWords(float x, float y, const char label[]);
 		void checkToggle(int index);
 };
@@ -410,7 +412,7 @@ void WheatonCollege::drawGrass()
 	glRectf((.35*ww), (.82*wh), (.4*ww), (.58*wh));
 
 	// Chapel Field
-	glRectf((.475*ww), (.8*wh), (.5*ww), (.68*wh));
+	glRectf((.475*ww), (.8*wh), (.502*ww), (.68*wh));
 
 	// Turf Field
 	glBegin(GL_POLYGON);
@@ -508,7 +510,7 @@ void WheatonCollege::drawDorms()
 	glRectf((.2625*ww), (.74*wh), (.281*ww), (.61*wh));
 	glRectf((.2625*ww), (.61*wh), (.3*ww), (.58*wh));
 	// Keefe
-	glRectf((.2625*ww), (.48*wh), (.2813*ww), (.42*wh));
+	glRectf((.26*ww), (.48*wh), (.2813*ww), (.42*wh));
 	// Gebbie
 	glRectf((.282*ww), (.49*wh), (.325*ww), (.52*wh));
 	// Cragin
@@ -516,11 +518,11 @@ void WheatonCollege::drawDorms()
 	// Stanton
 	glRectf((.313*ww), (.61*wh), (.328*ww), (.56*wh));
 	// Clark
-	glRectf((.575*ww), (.92*wh), (.59*ww), (.88*wh));
+	glRectf((.574*ww), (.92*wh), (.595*ww), (.88*wh));
 	// Mac
-	glRectf((.61*ww), (.88*wh), (.625*ww), (.83*wh));
+	glRectf((.608*ww), (.88*wh), (.625*ww), (.83*wh));
 	// Young
-	glRectf((.6375*ww), (.92*wh), (.653*ww), (.88*wh));
+	glRectf((.6375*ww), (.92*wh), (.663*ww), (.88*wh));
 	// Meadows North
 	glRectf((.6125*ww), (.72*wh), (.656*ww), (.695*wh));
 	// Meadows Center
@@ -716,6 +718,8 @@ void WheatonCollege::writeLabels()
 	
 	wheaton.roadLabels();
 	wheaton.buildingLabels();
+	wheaton.adminLabels();
+	wheaton.otherLabels();
 }
 
 void WheatonCollege::roadLabels()
@@ -732,10 +736,10 @@ void WheatonCollege::roadLabels()
 
 	wheaton.writeWords(.48, .985, "East Main St");
 	wheaton.writeWords(.17, .385, "Howard St");
-	wheaton.writeWords(.105, .5, "3");				// Taunton Ave
-	wheaton.writeWords(.24, .7, "#");				// Howard
+	wheaton.writeWords(.105, .5, "1");				// Taunton Ave
+	wheaton.writeWords(.24, .7, "2");				// Howard
 	wheaton.writeWords(.352, .2269, "Fillmore Dr");
-	wheaton.writeWords(.815, .5, "#");				// Pine St
+	wheaton.writeWords(.815, .5, "4");				// Pine St
 	// Parking lots
 	if (labels == true)
 		glColor3f(1.0, 1.0, 1.0);
@@ -750,12 +754,101 @@ void WheatonCollege::roadLabels()
 }
 
 void WheatonCollege::buildingLabels()
-// create labels for buildings
+// create labels for highlightable buildings
 {
 	WheatonCollege wheaton;
-	// highlightable buildings
 	wheaton.checkToggle(0);
 	wheaton.writeWords(.41, .755, "Chapel");
+	wheaton.checkToggle(1);
+	wheaton.writeWords(.24, .34, "Beard");
+	wheaton.writeWords(.263, .93, "Kilham");
+	wheaton.writeWords(.302, .93, "Metcalf");
+	wheaton.writeWords(.283, .83, "Chapin");
+	wheaton.writeWords(.315, .806, "Lar");
+	wheaton.writeWords(.315, .795, "com");
+	wheaton.writeWords(.27, .765, "Emerson");
+	wheaton.writeWords(.27, .752, "House");
+	wheaton.writeWords(.27, .59, "Everett");
+	wheaton.writeWords(.26, .45, "Keefe");
+	wheaton.writeWords(.29, .5, "Gebbie");
+	wheaton.writeWords(.325, .667, "Cra");
+	wheaton.writeWords(.325, .656, "gin");
+	wheaton.writeWords(.312, .582, "Stan");
+	wheaton.writeWords(.3121, .569, "ton");
+	wheaton.writeWords(.574, .9, "Clark");
+	wheaton.writeWords(.608, .86, "Mac");
+	wheaton.writeWords(.6375, .9, "Young");
+	wheaton.writeWords(.618, .71, "Meadows");
+	wheaton.writeWords(.618, .7, "North");
+	wheaton.writeWords(.595, .62, "West");
+	wheaton.writeWords(.638, .62, "East");
+	wheaton.checkToggle(2);
+	wheaton.writeWords(.45, .16, "Field House");
+	wheaton.checkToggle(3);
+	wheaton.writeWords(.36, .52, "Library");
+	wheaton.checkToggle(4);
+	wheaton.writeWords(.33, .38, "Science");
+	wheaton.writeWords(.34, .36, "Center");
+	wheaton.writeWords(.39, .455, "Science");
+	wheaton.writeWords(.4, .435, "Center");
+}
+
+void WheatonCollege::adminLabels()
+// label administrative and academic buildings
+{
+	WheatonCollege wheaton;
+	if (labels)
+		glColor3f(1.0, 1.0, 1.0);
+	else
+		glColor3f(.55, .27, .07);
+
+	wheaton.writeWords(.13, .67, "Bookstore");
+	wheaton.writeWords(.127, .5, "Norton Med");
+	wheaton.writeWords(.346, .89, "Park");
+	wheaton.writeWords(.346, .87, "Hall");
+	wheaton.writeWords(.33, .38, "Science");
+	wheaton.writeWords(.315, .74, "Emer");
+	wheaton.writeWords(.315, .73, "son");
+	wheaton.writeWords(.427, .91, "3");
+	wheaton.writeWords(.41, .81, "Knapton");
+	wheaton.writeWords(.412, .69, "Admission");
+	wheaton.writeWords(.42, .6, "Balfour");
+	wheaton.writeWords(.46, .92, "Watson");
+	wheaton.writeWords(.46, .83, "Meneely");
+	wheaton.writeWords(.565, .83, "Chase");
+}
+
+void WheatonCollege::otherLabels()
+// make the rest of the labels
+{
+	WheatonCollege wheaton;
+	// grass
+	if (labels)
+		glColor3f(1.0, 1.0, 1.0);
+	if (!labels)
+		glColor3f(0.0, 0.2, 0.0);
+
+	wheaton.writeWords(.36, .74, "Dimple");
+	wheaton.writeWords(.475, .74, "Chapel");
+	wheaton.writeWords(.48, .72, "Field");
+	wheaton.writeWords(.55, .05, "Turf");
+	wheaton.writeWords(.65, .25, "Women's");
+	wheaton.writeWords(.66, .23, "Soccer");
+	wheaton.writeWords(.72, .48, "Men's");
+	wheaton.writeWords(.73, .46, "Soccer");
+
+	if (!labels)
+		glColor3f(0.0, 0.0, 0.7);
+
+	wheaton.writeWords(.53, .735, "Peacock Pond");
+
+	if (!labels)
+		glColor3f(0.0, 0.5, 0.0);
+
+	wheaton.writeWords(.85, .85, "1: Taunton Ave");
+	wheaton.writeWords(.85, .81, "2: Howard St");
+	wheaton.writeWords(.85, .77, "3: Mary Lyon");
+	wheaton.writeWords(.85, .73, "4: Pine St");
 }
 
 void WheatonCollege::checkToggle(int index)
@@ -765,7 +858,7 @@ void WheatonCollege::checkToggle(int index)
 		glColor3f(0.0, 0.0, 0.0);
 	else if ((labels && highlight[index] == false) or (!labels && highlight[index]))
 		glColor3f(1.0, 1.0, 1.0);
-	else if (!labels && highlight[index])
+	else if (!labels && !highlight[index])
 		glColor3f(.55, .27, .07);
 }
 
