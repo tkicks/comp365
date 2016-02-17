@@ -14,9 +14,6 @@ Input:		The user will input using the mouse
 Output:		A computer graphic window will be displayed which will initially
 			be empty.  With each keypress (as explained in input) the
 			fractal will expand or shrink (and maybe change colors).
-
-
-TODO: fix setInMenu
 */
 
 #include <GL/glut.h>
@@ -34,7 +31,7 @@ class dragonFractal
 		void setInMenu(bool);			// set inMenu value to true or false
 	private:
 		int levels;						// number of levels in the fractal
-		bool inMenu;			// was left click in menu?
+		bool inMenu;					// was left click in menu?
 		vector<float> fractalPoints;	// vector of points in fractal
 };
 
@@ -55,6 +52,7 @@ void dragonFractal::setInMenu(bool value)
 // set the value of in menu to true or false
 {
 	this->inMenu = value;
+	cout << "in menu? " << this->inMenu << endl;
 }
 
 bool dragonFractal::getInMenu()
@@ -82,8 +80,8 @@ void mouse (int button, int state, int x, int y)
 // OUTPUT: none
 // increase fractal level
 {
-	// if the left mouse was pressed and it wasn't in the menu
-	if (state == GLUT_UP && !fractal.getInMenu())
+	// if the left mouse was pressed and it wasn't in the menu draw fractal
+	if (state == GLUT_DOWN && !fractal.getInMenu())
 		fractal.drawFractal();
 }
 
@@ -91,6 +89,7 @@ void menu (int menuVal)
 // INPUT: value of menu option clicked	OUTPUT: none
 // call function to do based on menu option chosen
 {
+	fractal.setInMenu(true);		// say in menu
 	// holder
 	switch (menuVal)
 	{
@@ -126,7 +125,6 @@ void initMenu ()
 // INPUT: fractal object	OUTPUT: none
 // initialize the menu on a right mouse click
 {
-	fractal.setInMenu(true);		// say in menu
 	glutCreateMenu(menu);			// call the menu function
 	glutAddMenuEntry("Create New (default)", 0);
 	glutAddMenuEntry("Create New (custom)", 1);
