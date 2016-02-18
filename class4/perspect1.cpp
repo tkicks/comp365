@@ -21,8 +21,8 @@ float z = 5.0;  // distance of eye (center of projection) from frustum
 
 void display ()
 {
-   //glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-   glClear (GL_COLOR_BUFFER_BIT);
+   glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+   // glClear (GL_COLOR_BUFFER_BIT);
    glLoadIdentity ();
 
    gluLookAt (0.0, 0.0, z, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
@@ -36,7 +36,7 @@ void display ()
     */
 
    /* scale objects here (if needed) to make sure they fit into frustum */
-   glScalef (1.0, 1.0, 1.0);
+   glScalef (2.0, 2.0, 1.0);
 
    glColor3f (1.0, 0.0, 0.0);
    /* draw a polygon */
@@ -48,6 +48,7 @@ void display ()
 
    glColor3f (0.0, 0.0, 1.0);
    /* draw a unit cube (centered at 0,0,0) */
+   glScalef (0.5, 0.5, 1.0);
    glutWireCube (1.0);
    //glutWireTeapot (0.7);
    //glutWireTorus (0.2, 1.0, 10, 50);
@@ -75,7 +76,7 @@ void init ()
 {
    glClearColor (0.8, 0.8, 0.8, 0.0);
    glShadeModel (GL_FLAT);
-   //glEnable (GL_DEPTH_TEST);
+   glEnable (GL_DEPTH_TEST);
 }
 
 void reshape (int w, int h)
@@ -140,8 +141,8 @@ void keyboard (unsigned char key, int x, int y)
 
 int main (int argc, char** argv) {
    glutInit(&argc, argv);
-   glutInitDisplayMode (GLUT_SINGLE | GLUT_RGB);
-   //glutInitDisplayMode (GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
+   // glutInitDisplayMode (GLUT_SINGLE | GLUT_RGB);
+   glutInitDisplayMode (GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
    glutInitWindowSize (500, 500); 
    glutInitWindowPosition (100, 100);
    glutCreateWindow ("Frustum Fun");

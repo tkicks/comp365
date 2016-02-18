@@ -16,5 +16,8 @@ parabola:		parabola.cpp
 deCasteljau3:		deCasteljau3.cpp
 		g++ deCasteljau3.cpp -o deCasteljau3 $(CFLAGS)
 
+box:		box.cpp
+		g++ box.cpp -o box $(CFLAGS)
+
 clean:
 		rm *.o

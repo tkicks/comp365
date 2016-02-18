@@ -25,6 +25,8 @@ void drawScene(void)
    
    // Modeling transformations.
    glTranslatef(0.0, 0.0, -15.0);
+   glRotatef(45.0, 0.0, 0.0, 1.0); 
+   glScalef(1.0, 3.0, 1.0);
 
    glutWireCube(5.0); // Box.
 
