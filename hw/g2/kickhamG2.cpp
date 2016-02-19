@@ -55,15 +55,32 @@ void dragonFractal::drawFractal()
 {
 	// cout << "Draw fractal\n";
 	cout << fractalPoints.size() << endl;
+	int size = fractalPoints.size();				// size of vector of points
+
+	glColor3f(1.0, 0.0, 0.0);
+	glLineWidth(2.0);
 	// if it's the first point, draw another a segment length to the right
-	if (fractalPoints.size() == 1)
+	if (size == 1)
 	{
-		fractal.setNext(fractalPoints[0][0], (fractalPoints[0][1] + segLength));
+		fractal.setNext((fractalPoints[0][0] + segLength), fractalPoints[0][1]);
 	}
-	else
+	else													// otherwise
 	{
-		// fractal.setNext(fractalPoints[pointNum][0])
+		for (int i = 0; i < size; i++)		// for each point
+		{
+			// figure out the math
+			fractal.setNext(fractalPoints[i][0], fractalPoints[i][1]);
+		}
 	}
+
+	glBegin(GL_LINE_STRIP);
+		for (int i = 0; i < fractalPoints.size(); i++)
+		{
+			glVertex3f(fractalPoints[i][0], fractalPoints[i][1], 0.0);
+		}
+	glEnd();
+
+	glFlush();			// draw fractal
 }
 
 void dragonFractal::setNext(float x, float y)
@@ -74,10 +91,6 @@ void dragonFractal::setNext(float x, float y)
 	this->tempVector.push_back(y);				// then y coord of next point
 	this->fractalPoints.push_back(tempVector);	// push new coords to 2d vector of points
 	this->tempVector.clear();					// empty out intermediary vector so no repeats
-
-	// test storage
-	// for (int i = 0; i < fractalPoints.size(); i++)
-	// 	cout << fractalPoints[i][0] << " " << fractalPoints[i][1] << endl;				// see what's stored
 }
 
 void dragonFractal::setLength(float length)
@@ -162,8 +175,8 @@ void init ()
 
 	// set default starting location to center of screen (250, 250)
 	fractal.setNext(250.0, 250.0);
-	// set default segment length to 5
-	fractal.setLength(5.0);
+	// set default segment length to 20
+	fractal.setLength(20.0);
 }
 
 void initMenu ()
