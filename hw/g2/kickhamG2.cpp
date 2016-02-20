@@ -34,6 +34,9 @@ class dragonFractal
 		void setInMenu(bool);						// set inMenu value to true or false
 		void setNext(float x, float y);				// set start x and y coords
 		void setLength(float length);				// set segment length
+		int getLength();							// get length of segments
+		int getSize();								// get size of vector of points
+		vector<float> getLastCoords();				// get the last coordinates in the fractal
 	private:
 		int levels;									// number of levels in the fractal
 		int pointNum;								// number of points it's on for vector iterations
@@ -62,10 +65,12 @@ void dragonFractal::drawFractal()
 	// if it's the first point, draw another a segment length to the right
 	if (size == 1)
 	{
+		cout << "size = 1 drawFractal\n";
 		fractal.setNext((fractalPoints[0][0] + segLength), fractalPoints[0][1]);
 	}
 	else													// otherwise
 	{
+		cout << "drawFractal else\n";
 		for (int i = 0; i < size; i++)		// for each point
 		{
 			// figure out the math
@@ -87,6 +92,7 @@ void dragonFractal::setNext(float x, float y)
 // INPUT: float x and y coords to start at 	OUTPUT: none
 // set the starting x and y coords
 {
+	cout << x << " " << y << endl;
 	this->tempVector.push_back(x);				// next spot in vector gets x coord
 	this->tempVector.push_back(y);				// then y coord of next point
 	this->fractalPoints.push_back(tempVector);	// push new coords to 2d vector of points
@@ -115,6 +121,28 @@ bool dragonFractal::getInMenu()
 	return this->inMenu;
 }
 
+int dragonFractal::getSize()
+// INPUT: none	OUTPUT: number of points in fractal
+// returns the size of vector for mouse function since it isn't a class
+// function and therefore vector not available
+{
+	return fractalPoints.size();
+}
+
+int dragonFractal::getLength()
+// INPUT: none	OUTPUT: number of points in vector
+// return number of points in fractal
+{
+	return fractalPoints.size();
+}
+
+vector<float> dragonFractal::getLastCoords()
+// INPUT: none	OUTPUT: vector containing last x, y coords in fractal
+// return the last x, y coords in the fractal
+{
+	return fractalPoints.back();
+}
+
 
 void display ()
 // INPUT: none	OUTPUT: none
@@ -133,9 +161,19 @@ void mouse (int button, int state, int x, int y)
 // OUTPUT: none
 // increase fractal level
 {
+	// get last point
+	int size = fractal.getSize();							// size of vector of points (not class function so needs getter)
+	int length = fractal.getLength();						// get length of segment
+	vector<float> lastCoords = fractal.getLastCoords();		// get last coordinates
+
 	// if the left mouse was pressed and it wasn't in the menu draw fractal
 	if (state == GLUT_DOWN && !fractal.getInMenu())
+	{
+		// fractal.setNext((lastCoords[0]+length), (lastCoords[1]+length));
 		fractal.drawFractal();
+	}
+
+	lastCoords.clear();		
 }
 
 void menu (int menuVal)
