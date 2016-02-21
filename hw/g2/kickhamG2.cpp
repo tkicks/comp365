@@ -73,7 +73,7 @@ void dragonFractal::drawFractal()
 		// fractal.setNext((fractalPoints[0][0] + segLength), fractalPoints[0][1]);
 		for (int i = 0; i < tempPoints.size(); i++)		// for each new coord in fractal
 		{
-			tempVector.push_back(tempPoints[i][0]);		// put next x in intermediary vector
+			tempVector.push_back(tempPoints[i][0]+segLength);		// put next x in intermediary vector
 			tempVector.push_back(tempPoints[i][1]);		// put next y in intermediary vector
 			fractalPoints.push_back(tempVector);		// put new fractal into fractal vector
 			tempVector.clear();
@@ -106,6 +106,8 @@ void dragonFractal::drawFractal()
 		tempPoints.clear();						// clear new fractal vector
 	}
 
+	if (size > 10)
+		glColor3f(0.0, 1.0, 0.0);
 	glBegin(GL_LINE_STRIP);
 		for (int i = 0; i < fractalPoints.size(); i++)
 		{
