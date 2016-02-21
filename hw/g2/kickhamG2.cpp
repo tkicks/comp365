@@ -17,11 +17,13 @@ Output:		A computer graphic window will be displayed which will initially
 
 set segment length by keyboard input of number of pixels
 (1-9 unless figure out how else)
+figure out why rotation math isn't working
 */
 
 #include <GL/glut.h>
 #include <iostream>
 #include <vector>
+#include <math.h>
 using namespace std;
 
 class dragonFractal
@@ -36,6 +38,7 @@ class dragonFractal
 		void setLength(float length);				// set segment length
 		int getLength();							// get length of segments
 		int getSize();								// get size of vector of points
+		float rotateMath(int Q, float x1, float y1, float x3, float y3, char xy);	// do math for rotation
 		vector<float> getLastCoords();				// get the last coordinates in the fractal
 	private:
 		int levels;									// number of levels in the fractal
@@ -44,6 +47,7 @@ class dragonFractal
 		float segLength;							// length of segments
 		bool inMenu;								// was left click in menu?
 		vector<vector <float> > fractalPoints;		// vector of points in fractal [i][0] = x [i][1] = y
+		vector<vector <float> > tempPoints;			// temporary vector of points
 		vector<float> tempVector;					// intermediary vector for 2d vector
 };
 
@@ -70,12 +74,24 @@ void dragonFractal::drawFractal()
 	}
 	else													// otherwise
 	{
+		int Q = 90;		// angle to rotate at
+		//
 		cout << "drawFractal else\n";
 		for (int i = 0; i < size; i++)		// for each point
 		{
-			// figure out the math
-			fractal.setNext(fractalPoints[i][0], fractalPoints[i][1]);
+			fractal.setNext(fractalPoints[i][0], fractalPoints[i][1]);		// put next point into fractal
+			float x1 = fractalPoints[i][0];		// x1 (current) value for rotation
+			float y1 = fractalPoints[i][1];		// y1 (current) value for rotation
+			float x3 = fractalPoints[i+1][0];	// next x value for rotation
+			float y3 = fractalPoints[i+1][1];	// next y value for rotation
+			float x2 = fractal.rotateMath(Q, x1, y1, x3, y3, 'x');	// calculate new x value
+			float y2 = fractal.rotateMath(Q, x1, y1, x3, y3, 'y');	// calculate new y value
+			fractal.setNext(x2, y2);			// put new coords into fractal
 		}
+		fractalPoints.clear();					// clear fractalPoints to put expanded fractal in
+		for (int i = 0; i < tempPoints.size(); i++)		// for each new coord in fractal
+			fractalPoints.push_back(tempPoints[i]);		// put new fractal into fractal vector
+		tempPoints.clear();						// clear new fractal vector
 	}
 
 	glBegin(GL_LINE_STRIP);
@@ -95,8 +111,12 @@ void dragonFractal::setNext(float x, float y)
 	cout << x << " " << y << endl;
 	this->tempVector.push_back(x);				// next spot in vector gets x coord
 	this->tempVector.push_back(y);				// then y coord of next point
-	this->fractalPoints.push_back(tempVector);	// push new coords to 2d vector of points
+	this->tempPoints.push_back(tempVector);		// push new coords to 2d vector of points
+	if (fractalPoints.size() == 0)				// if it's starting out
+		this->fractalPoints.push_back(tempVector);	// add directly to fractal
 	this->tempVector.clear();					// empty out intermediary vector so no repeats
+
+
 }
 
 void dragonFractal::setLength(float length)
@@ -135,6 +155,19 @@ int dragonFractal::getLength()
 {
 	return fractalPoints.size();
 }
+
+float dragonFractal::rotateMath(int Q, float x1, float y1, float x3, float y3, char xy)
+// INPUT: Q = angle of rotation, x1y1 = coords for RxRy (anchor of rotation)
+//		  x3y3 = coords of other end of rotation, char xy = whether
+//		  finding new x or y value
+// OUTPUT: new x or y value depending on char passed in
+{
+	if (xy == 'x')
+		return (x1 + (x3 - x1) * cos(Q) - (y3 - y1) * sin(Q));	// return new x value
+	else
+		return (y1 + (x3 - x1) * sin(Q) + (y3 - y1) * cos(Q));	// return new y value
+}
+
 
 vector<float> dragonFractal::getLastCoords()
 // INPUT: none	OUTPUT: vector containing last x, y coords in fractal
