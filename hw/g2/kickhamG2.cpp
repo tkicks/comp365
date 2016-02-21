@@ -70,14 +70,21 @@ void dragonFractal::drawFractal()
 	if (size == 1)
 	{
 		cout << "size = 1 drawFractal\n";
-		fractal.setNext((fractalPoints[0][0] + segLength), fractalPoints[0][1]);
+		// fractal.setNext((fractalPoints[0][0] + segLength), fractalPoints[0][1]);
+		for (int i = 0; i < tempPoints.size(); i++)		// for each new coord in fractal
+		{
+			tempVector.push_back(tempPoints[i][0]);		// put next x in intermediary vector
+			tempVector.push_back(tempPoints[i][1]);		// put next y in intermediary vector
+			fractalPoints.push_back(tempVector);		// put new fractal into fractal vector
+			tempVector.clear();
+		}
 	}
 	else													// otherwise
 	{
 		int Q = 90;		// angle to rotate at
 		//
 		cout << "drawFractal else\n";
-		for (int i = 0; i < size; i++)		// for each point
+		for (int i = 0; i < size-1; i++)		// for each point
 		{
 			fractal.setNext(fractalPoints[i][0], fractalPoints[i][1]);		// put next point into fractal
 			float x1 = fractalPoints[i][0];		// x1 (current) value for rotation
@@ -90,7 +97,12 @@ void dragonFractal::drawFractal()
 		}
 		fractalPoints.clear();					// clear fractalPoints to put expanded fractal in
 		for (int i = 0; i < tempPoints.size(); i++)		// for each new coord in fractal
-			fractalPoints.push_back(tempPoints[i]);		// put new fractal into fractal vector
+		{
+			tempVector.push_back(tempPoints[i][0]);		// put next x in intermediary vector
+			tempVector.push_back(tempPoints[i][1]);		// put next y in intermediary vector
+			fractalPoints.push_back(tempVector);		// put new fractal into fractal vector
+			tempVector.clear();
+		}
 		tempPoints.clear();						// clear new fractal vector
 	}
 
@@ -113,7 +125,7 @@ void dragonFractal::setNext(float x, float y)
 	this->tempVector.push_back(y);				// then y coord of next point
 	this->tempPoints.push_back(tempVector);		// push new coords to 2d vector of points
 	if (fractalPoints.size() == 0)				// if it's starting out
-		this->fractalPoints.push_back(tempVector);	// add directly to fractal
+		fractalPoints.push_back(tempVector);	// add directly to fractal
 	this->tempVector.clear();					// empty out intermediary vector so no repeats
 
 
