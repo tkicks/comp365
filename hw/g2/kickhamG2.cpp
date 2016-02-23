@@ -17,7 +17,7 @@ Output:		A computer graphic window will be displayed which will initially
 
 set segment length by keyboard input of number of pixels
 (1-9 unless figure out how else)
-figure out why rotation math isn't working
+don't rotate 45 just 90
 */
 
 #include <GL/glut.h>
@@ -38,7 +38,7 @@ class dragonFractal
 		void setLength(float length);				// set segment length
 		int getLength();							// get length of segments
 		int getSize();								// get size of vector of points
-		float rotateMath(int Q, float x1, float y1, float x3, float y3, char xy);	// do math for rotation
+		void rotateMath(float x1, float y1, float x2, float y2);	// do math for rotation
 		vector<float> getLastCoords();				// get the last coordinates in the fractal
 	private:
 		int levels;									// number of levels in the fractal
@@ -47,7 +47,6 @@ class dragonFractal
 		float segLength;							// length of segments
 		bool inMenu;								// was left click in menu?
 		vector<vector <float> > fractalPoints;		// vector of points in fractal [i][0] = x [i][1] = y
-		vector<vector <float> > tempPoints;			// temporary vector of points
 		vector<float> tempVector;					// intermediary vector for 2d vector
 };
 
@@ -61,7 +60,6 @@ void dragonFractal::drawFractal()
 // draw next fractal level
 {
 	// cout << "Draw fractal\n";
-	cout << fractalPoints.size() << endl;
 	int size = fractalPoints.size();				// size of vector of points
 
 	glColor3f(1.0, 0.0, 0.0);
@@ -69,50 +67,39 @@ void dragonFractal::drawFractal()
 	// if it's the first point, draw another a segment length to the right
 	if (size == 1)
 	{
-		cout << "size = 1 drawFractal\n";
 		// fractal.setNext((fractalPoints[0][0] + segLength), fractalPoints[0][1]);
-		for (int i = 0; i < tempPoints.size(); i++)		// for each new coord in fractal
+		for (int i = 0; i < size; i++)		// for each new coord in fractal
 		{
-			tempVector.push_back(tempPoints[i][0]+segLength);		// put next x in intermediary vector
-			tempVector.push_back(tempPoints[i][1]);		// put next y in intermediary vector
-			fractalPoints.push_back(tempVector);		// put new fractal into fractal vector
+			// cout << fractalPoints.size() << endl;
+			tempVector.push_back(fractalPoints[i][0]+segLength);		// put next x in intermediary vector
+			tempVector.push_back(fractalPoints[i][1]);					// put next y in intermediary vector
+			fractalPoints.push_back(tempVector);						// put new fractal into fractal vector
 			tempVector.clear();
 		}
 	}
 	else													// otherwise
 	{
-		int Q = 90;		// angle to rotate at
-		//
-		cout << "drawFractal else\n";
-		for (int i = 0; i < size-1; i++)		// for each point
+		for (int i = size-1; i > 0; i--)		// for each point
 		{
-			fractal.setNext(fractalPoints[i][0], fractalPoints[i][1]);		// put next point into fractal
 			float x1 = fractalPoints[i][0];		// x1 (current) value for rotation
 			float y1 = fractalPoints[i][1];		// y1 (current) value for rotation
-			float x3 = fractalPoints[i+1][0];	// next x value for rotation
-			float y3 = fractalPoints[i+1][1];	// next y value for rotation
-			float x2 = fractal.rotateMath(Q, x1, y1, x3, y3, 'x');	// calculate new x value
-			float y2 = fractal.rotateMath(Q, x1, y1, x3, y3, 'y');	// calculate new y value
-			fractal.setNext(x2, y2);			// put new coords into fractal
+			float x2 = fractalPoints[i-1][0];	// previous x value for rotation
+			float y2 = fractalPoints[i-1][1];	// previous y value for rotation
+			fractal.rotateMath(x1, y1, x2, y2);	// calculate new x, y value
 		}
-		fractalPoints.clear();					// clear fractalPoints to put expanded fractal in
-		for (int i = 0; i < tempPoints.size(); i++)		// for each new coord in fractal
-		{
-			tempVector.push_back(tempPoints[i][0]);		// put next x in intermediary vector
-			tempVector.push_back(tempPoints[i][1]);		// put next y in intermediary vector
-			fractalPoints.push_back(tempVector);		// put new fractal into fractal vector
-			tempVector.clear();
-		}
-		tempPoints.clear();						// clear new fractal vector
 	}
+
 
 	if (size > 10)
 		glColor3f(0.0, 1.0, 0.0);
+
 	glBegin(GL_LINE_STRIP);
 		for (int i = 0; i < fractalPoints.size(); i++)
 		{
+			cout << fractalPoints[i][0] << " " << fractalPoints[i][1] << endl;
 			glVertex3f(fractalPoints[i][0], fractalPoints[i][1], 0.0);
 		}
+		cout << endl;
 	glEnd();
 
 	glFlush();			// draw fractal
@@ -122,15 +109,11 @@ void dragonFractal::setNext(float x, float y)
 // INPUT: float x and y coords to start at 	OUTPUT: none
 // set the starting x and y coords
 {
-	cout << x << " " << y << endl;
+	// cout << x << " " << y << endl;
 	this->tempVector.push_back(x);				// next spot in vector gets x coord
 	this->tempVector.push_back(y);				// then y coord of next point
-	this->tempPoints.push_back(tempVector);		// push new coords to 2d vector of points
-	if (fractalPoints.size() == 0)				// if it's starting out
-		fractalPoints.push_back(tempVector);	// add directly to fractal
+	this->fractalPoints.push_back(tempVector);	// push new coords to 2d vector of points
 	this->tempVector.clear();					// empty out intermediary vector so no repeats
-
-
 }
 
 void dragonFractal::setLength(float length)
@@ -170,16 +153,44 @@ int dragonFractal::getLength()
 	return fractalPoints.size();
 }
 
-float dragonFractal::rotateMath(int Q, float x1, float y1, float x3, float y3, char xy)
-// INPUT: Q = angle of rotation, x1y1 = coords for RxRy (anchor of rotation)
-//		  x3y3 = coords of other end of rotation, char xy = whether
-//		  finding new x or y value
-// OUTPUT: new x or y value depending on char passed in
+void dragonFractal::rotateMath(float x1, float y1, float x2, float y2)
+// INPUT: x1y1 = coords for RxRy (anchor of rotation)
+//		  x2y2 = coords of other end of rotation
+// OUTPUT: none
+// FIX SO THAT IT MOVES FROM LAST POINT NOT ORIGINAL POINT BASED OFF OF
 {
-	if (xy == 'x')
-		return (x1 + (x3 - x1) * cos(Q) - (y3 - y1) * sin(Q));	// return new x value
+	float newX, newY;				// new x and y values
+	
+	// if last direction was right go up
+	if (x1 > x2)
+	{
+		newX = fractalPoints.back()[0];
+		newY = fractalPoints.back()[1] + this->segLength;
+	}
+
+	// if last direction was down go right
+	else if (y1 < y2)
+	{
+		newX = fractalPoints.back()[0] + this->segLength;
+		newY = fractalPoints.back()[1];
+	}
+
+	// if last direction was left go down
+	else if (x1 < x2)
+	{
+		newX = fractalPoints.back()[0];
+		newY = fractalPoints.back()[1] - this->segLength;
+	}
+
+	// if last direction was up go left
 	else
-		return (y1 + (x3 - x1) * sin(Q) + (y3 - y1) * cos(Q));	// return new y value
+	{
+		newX = fractalPoints.back()[0] - this->segLength;
+		newY = fractalPoints.back()[1];
+	}
+
+	// set new coords
+	fractal.setNext(newX, newY);
 }
 
 
@@ -261,7 +272,7 @@ void init ()
 	// set default starting location to center of screen (250, 250)
 	fractal.setNext(250.0, 250.0);
 	// set default segment length to 20
-	fractal.setLength(20.0);
+	fractal.setLength(0.2);
 }
 
 void initMenu ()

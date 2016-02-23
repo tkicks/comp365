@@ -25,10 +25,23 @@ void drawScene(void)
    
    // Modeling transformations.
    glTranslatef(0.0, 0.0, -15.0);
-   glRotatef(45.0, 0.0, 0.0, 1.0); 
-   glScalef(1.0, 3.0, 1.0);
 
-   glutWireCube(5.0); // Box.
+   glTraslatef(10, 0, 0);
+   glRotatef(45, 0, 0, 1);
+   glColor3f(1, 0, 0);
+   glutWireCube(5.0);
+
+   glRotatef(20, 0, 0, 1);
+   glColor3f(0, 1, 0);
+   glutWireCube(5.0);
+
+   // glPushMatrix();
+   //    glScalef(1.0, 2.0, 1.0);
+   //    glutWireCube(5.0); // Box.
+   // glPopMatrix();
+
+   // glTranslatef(0.0, 7.0, 0.0);
+   // glutWireSphere(2.0, 10, 8);
 
    glFlush();
 }
