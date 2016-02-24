@@ -51,8 +51,8 @@ class dragonFractal
 };
 
 const int iterationLimit = 3;		// maximum number of iterations allowed
-const float ww = 500.0;				// set window's width
-const float wh = 500.0;				// set window's height
+const float ww = 1500.0;				// set window's width
+const float wh = 1000.0;				// set window's height
 dragonFractal fractal;				// create an object to use
 
 void dragonFractal::drawFractal()
@@ -89,18 +89,24 @@ void dragonFractal::drawFractal()
 		}
 	}
 
-
-	if (size > 10)
-		glColor3f(0.0, 1.0, 0.0);
-
 	glBegin(GL_LINE_STRIP);
 		for (int i = 0; i < fractalPoints.size(); i++)
 		{
-			cout << fractalPoints[i][0] << " " << fractalPoints[i][1] << endl;
+			if (i > 25000)
+				glColor3f(0.0, 1.0, 0.0);
+			if (i > 85000)
+				glColor3f(0.0, 0.0, 1.0);
+			if (i > 255000)
+				glColor3f(1.0, 1.0, 0.0);
+			if (i > 450000)
+				glColor3f(1.0, 1.0, 1.0);
+			// cout << fractalPoints[i][0] << " " << fractalPoints[i][1] << endl;
 			glVertex3f(fractalPoints[i][0], fractalPoints[i][1], 0.0);
 		}
-		cout << endl;
+		// cout << endl;
 	glEnd();
+
+	this->pointNum = fractalPoints.size();
 
 	glFlush();			// draw fractal
 }
@@ -219,19 +225,17 @@ void mouse (int button, int state, int x, int y)
 // OUTPUT: none
 // increase fractal level
 {
-	// get last point
-	int size = fractal.getSize();							// size of vector of points (not class function so needs getter)
-	int length = fractal.getLength();						// get length of segment
-	vector<float> lastCoords = fractal.getLastCoords();		// get last coordinates
-
 	// if the left mouse was pressed and it wasn't in the menu draw fractal
 	if (state == GLUT_DOWN && !fractal.getInMenu())
 	{
-		// fractal.setNext((lastCoords[0]+length), (lastCoords[1]+length));
-		fractal.drawFractal();
+		if (fractal.getSize() > 0)
+			fractal.drawFractal();
+		else
+		{
+			fractal.setNext(750.0, 500.0);
+			fractal.drawFractal();
+		}
 	}
-
-	lastCoords.clear();		
 }
 
 void menu (int menuVal)
@@ -242,10 +246,13 @@ void menu (int menuVal)
 	// holder
 	switch (menuVal)
 	{
-		case 0:
+		case 0: fractal.setNext(750.0, 500.0);
+				fractal.drawFractal();
+				fractal.setInMenu(false);
+				break;
 		case 1:
 		case 2:
-		case 3:
+		case 3: glFlush();
 		case 4: cout << "Menu option " << menuVal << " chosen\n";
 				fractal.setInMenu(false);
 				break;
@@ -259,8 +266,8 @@ void init ()
 {
 	glPixelStorei (GL_UNPACK_ALIGNMENT, 1);
 
-	// background color (green for the grass)
-	glClearColor (1.0, 1.0, 1.0, 0.0);
+	// background color is charcoal
+	glClearColor (0.21, 0.27, 0.31, 0.0);
 
 	// flip vertex locations
 	glMatrixMode (GL_PROJECTION);
@@ -269,10 +276,10 @@ void init ()
 	// define coordinate system in x, y 0-1
 	gluOrtho2D (0.0, ww, 0.0, wh);
 
-	// set default starting location to center of screen (250, 250)
-	fractal.setNext(250.0, 250.0);
+	// set default starting location to center of screen
+	// fractal.setNext(750.0, 500.0);
 	// set default segment length to 20
-	fractal.setLength(0.2);
+	fractal.setLength(1.3);
 }
 
 void initMenu ()
