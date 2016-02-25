@@ -4,11 +4,12 @@ Program:	Dragon Fractal
 Purpose:	Use C++ and OpenGL to create an interactive dragon fractal
 Input:		The user will input using the mouse
 			to: right click a menu w/ options
-				to: clear window (doesn't delete image)
-					redisplay the fractal (use after window clear)
-					create new default (predetermined location and length)
+				to: create new default (predetermined location and length)
 					create new user (user inputs location and length)
+					toggle random colors (on/off)
 					choose segment length for current level of fractal (can change in middle)
+					clear window (doesn't delete image)
+					redisplay the fractal (use after window clear)
 					quit
 				left click iterate to next level of fractal
 Output:		A computer graphic window will be displayed which will initially
@@ -20,6 +21,7 @@ Output:		A computer graphic window will be displayed which will initially
 #include <GL/glut.h>
 #include <iostream>
 #include <vector>
+#include <time.h>
 using namespace std;
 
 class dragonFractal
@@ -39,6 +41,8 @@ class dragonFractal
 		bool getStart();							// return if starting location is random
 		void rotateMath(float x1, float y1, float x2, float y2);	// do math for rotation
 		void figureNext();							// figure out next point
+		void ToggleRandomColors();					// user toggles whether or not to use random colors
+		float colorVal();							// return a random color float to make
 		vector<float> getLastCoords();				// get the last coordinates in the fractal
 	private:
 		int levels;									// number of levels in the fractal
@@ -47,6 +51,8 @@ class dragonFractal
 		float segLength;							// length of segments
 		bool inMenu;								// was left click in menu?
 		bool randomStart;							// is starting point random
+		bool NewRandomColor;						// decide if it's time for a new random color
+		bool randomColors;							// user choice of whether or not to use random colors
 		vector<vector <float> > fractalPoints;		// vector of points in fractal [i][0] = x [i][1] = y
 		vector<float> tempVector;					// intermediary vector for 2d vector
 };
@@ -123,6 +129,16 @@ bool dragonFractal::getStart()
 	return this->randomStart;
 }
 
+void dragonFractal::ToggleRandomColors()
+// INPUT: none	OUTPUT: none
+// toggles whether or not to use random colors
+{
+	if (this->randomColors)
+		this->randomColors = false;
+	else
+		this->randomColors = true;
+}
+
 void dragonFractal::figureNext()
 // INPUT: none	OUTPUT: none
 // figure out next point
@@ -173,20 +189,74 @@ void dragonFractal::drawFractal()
 // INPUT: none?	OUTPUT: none
 // draw next fractal level
 {
-	glColor3f(1.0, 0.0, 0.0);
+	if (randomColors)
+	{
+		float r = fractal.colorVal()/10;
+		float g = fractal.colorVal()/10;
+		float b = fractal.colorVal()/10;
+		glColor3f(r, g, b);
+	}
+	else
+		glColor3f(1.0, 0.0, 0.0);
 	glLineWidth(2.0);
 	glBegin(GL_LINE_STRIP);
 		for (int i = 0; i < fractalPoints.size(); i++)
 		{
-			if (i > 25000)
-				glColor3f(0.0, 1.0, 0.0);
-			if (i > 85000)
-				glColor3f(0.0, 0.0, 1.0);
-			if (i > 255000)
-				glColor3f(1.0, 1.0, 0.0);
-			if (i > 450000)
-				glColor3f(1.0, 1.0, 1.0);
+			if (i > 25000 && i < 85000 && this->NewRandomColor)
+			{
+				if (randomColors)
+				{
+					float r = fractal.colorVal()/10;
+					float g = fractal.colorVal()/10;
+					float b = fractal.colorVal()/10;
+					glColor3f(r, g, b);
+					this->NewRandomColor = false;
+				}
+				else
+					glColor3f(0.0, 1.0, 0.0);
+			}
+			else if (i > 85000 && i < 255000 && this->NewRandomColor)
+			{
+				if (randomColors)
+				{
+					float r = fractal.colorVal()/10;
+					float g = fractal.colorVal()/10;
+					float b = fractal.colorVal()/10;
+					glColor3f(r, g, b);
+					this->NewRandomColor = false;
+				}
+				else
+					glColor3f(0.0, 0.0, 1.0);
+			}
+			else if (i > 255000 && i < 450000 && this->NewRandomColor)
+			{
+				if (randomColors)
+				{
+					float r = fractal.colorVal()/10;
+					float g = fractal.colorVal()/10;
+					float b = fractal.colorVal()/10;
+					glColor3f(r, g, b);
+					this->NewRandomColor = false;
+				}
+				else
+					glColor3f(1.0, 1.0, 0.0);
+			}
+			else if (i > 450000 && this->NewRandomColor)
+			{
+				if (randomColors)
+				{
+					float r = fractal.colorVal()/10;
+					float g = fractal.colorVal()/10;
+					float b = fractal.colorVal()/10;
+					glColor3f(r, g, b);
+					this->NewRandomColor = false;
+				}
+				else
+					glColor3f(1.0, 1.0, 1.0);
+			}
 			glVertex3f(fractalPoints[i][0], fractalPoints[i][1], 0.0);
+			if (i == 25000 || i == 85000 || i == 255000 || i == 450000)
+				this->NewRandomColor = true;
 		}
 	glEnd();
 
@@ -231,6 +301,13 @@ void dragonFractal::rotateMath(float x1, float y1, float x2, float y2)
 
 	// set new coords
 	fractal.setNext(newX, newY);
+}
+
+float dragonFractal::colorVal()
+// INPUT: none	OUTPUT: float RGB value to set next color to
+// generate and return a random float between 0.0 and 1.0
+{
+	return (rand()%9);
 }
 
 
@@ -305,6 +382,9 @@ void menu (int menuVal)
 				fractal.setInMenu(false);
 				break;
 		case 5: exit(1);
+		case 6:	fractal.ToggleRandomColors();
+				fractal.setInMenu(false);
+				break;
 	}
 }
 
@@ -335,6 +415,7 @@ void initMenu ()
 	glutCreateMenu(menu);			// call the menu function
 	glutAddMenuEntry("Create New (default)", 0);
 	glutAddMenuEntry("Create New (custom)", 1);
+	glutAddMenuEntry("Toggle Random Colors", 6);
 	glutAddMenuEntry("Segment Length", 2);
 	glutAddMenuEntry("Clear", 3);
 	glutAddMenuEntry("Redisplay", 4);
@@ -346,8 +427,11 @@ int main (int argc, char** argv)
 // INPUT: none	OUTPUT: none
 // main function, calls other functions
 {
+	srand(time(NULL));
 	// console instructions
 	cout << "Right click for menu\nLeft click to iterate fractal\n";
+	cout << "Toggling random colors on may make segments of fractal difficult to see\n";
+	cout << "There is a 20 iteration limit\n";
 	
 	// initiate window/viewport
 	glutInit(&argc, argv);
