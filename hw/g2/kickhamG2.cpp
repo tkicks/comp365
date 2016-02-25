@@ -5,25 +5,21 @@ Purpose:	Use C++ and OpenGL to create an interactive dragon fractal
 Input:		The user will input using the mouse
 			to: right click a menu w/ options
 				to: clear window (doesn't delete image)
-					redisplay the fractal (like after window clear)
+					redisplay the fractal (use after window clear)
 					create new default (predetermined location and length)
 					create new user (user inputs location and length)
 					choose segment length for current level of fractal (can change in middle)
 					quit
 				left click iterate to next level of fractal
 Output:		A computer graphic window will be displayed which will initially
-			be empty.  With each keypress (as explained in input) the
-			fractal will expand or shrink (and maybe change colors).
-
-set segment length by keyboard input of number of pixels
-(1-9 unless figure out how else)
-don't rotate 45 just 90
+			be empty.  With each left click (up to 20) a dragon fractal will
+			be expanded.  A right click will produce a menu with options
+			listed in Input above.
 */
 
 #include <GL/glut.h>
 #include <iostream>
 #include <vector>
-#include <math.h>
 using namespace std;
 
 class dragonFractal
@@ -133,16 +129,13 @@ void dragonFractal::figureNext()
 {
 	if (this->levels <= iterationLimit)
 	{
-		// cout << "Draw fractal\n";
 		int size = fractalPoints.size();				// size of vector of points
 
 		// if it's the first point, draw another a segment length to the right
 		if (size == 1)
 		{
-			// fractal.setNext((fractalPoints[0][0] + segLength), fractalPoints[0][1]);
 			for (int i = 0; i < size; i++)		// for each new coord in fractal
 			{
-				// cout << fractalPoints.size() << endl;
 				tempVector.push_back(fractalPoints[i][0]+segLength);		// put next x in intermediary vector
 				tempVector.push_back(fractalPoints[i][1]);					// put next y in intermediary vector
 				fractalPoints.push_back(tempVector);						// put new fractal into fractal vector
@@ -170,7 +163,6 @@ void dragonFractal::setNext(float x, float y)
 // INPUT: float x and y coords to start at 	OUTPUT: none
 // set the starting x and y coords
 {
-	// cout << x << " " << y << endl;
 	this->tempVector.push_back(x);				// next spot in vector gets x coord
 	this->tempVector.push_back(y);				// then y coord of next point
 	this->fractalPoints.push_back(tempVector);	// push new coords to 2d vector of points
@@ -246,7 +238,6 @@ void display ()
 // INPUT: none	OUTPUT: none
 // create the display
 {
-	// dragonFractal fractal;			// instantiate a class object
 	// set up window
 	glClear (GL_COLOR_BUFFER_BIT);
 
@@ -267,7 +258,7 @@ void mouse (int button, int state, int x, int y)
 		if (fractal.getSize() <= 0)
 		{
 			if (!fractal.getStart())
-				fractal.setNext((.5*ww), (.5*wh));
+				fractal.setNext((.75*ww), (.35*wh));
 			else if (fractal.getStart())
 			{
 				fractal.setNext(x, (wh-y));
@@ -290,7 +281,7 @@ void menu (int menuVal)
 	{
 		case 0: fractal.resetLevels();
 				fractal.setLength(0.7);
-				fractal.setNext((.5*ww), (.5*wh));
+				fractal.setNext((.75*ww), (.35*wh));
 				fractal.figureNext();
 				fractal.setInMenu(false);
 				break;
