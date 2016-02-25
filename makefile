@@ -19,5 +19,11 @@ deCasteljau3:		deCasteljau3.cpp
 box:		box.cpp
 		g++ box.cpp -o box $(CFLAGS)
 
+myanimate:		myanimate.cpp
+		g++ myanimate.cpp -o myanimate $(CFLAGS)
+
+moveTeapot:		moveTeapot.cpp
+		g++ moveTeapot.cpp -o moveTeapot $(CFLAGS)
+
 clean:
 		rm *.o
