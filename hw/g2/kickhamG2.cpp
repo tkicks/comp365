@@ -1,21 +1,31 @@
 /*
 Name:		Tyler Kickham
-Program:	Dragon Fractal
-Purpose:	Use C++ and OpenGL to create an interactive dragon fractal
+Program:	Dragon Fractal (kickhamG2.cpp)
+Purpose:	Use C++ and OpenGL to create an interactive fractal with menu
+			options to change the way it is displayed, sometimes on the fly
 Input:		The user will input using the mouse
-			to: right click a menu w/ options
-				to: create new default (predetermined location and length)
-					create new user (user inputs location and length)
+			to: right click creates a menu w/ options
+				to: create new default (predetermined start location and
+									segment length)
+					create new user (user inputs start location w/ second
+									click on window and segment length)
 					toggle random colors (on/off)
-					choose segment length for current level of fractal (can change in middle)
+					choose segment length for current level of fractal
+									(will be applied to future iterations)
+					type of segments: line strip (default, all lines
+									connected, normal dragon fractal)
+					type of segments: lines (all segments are disconnected
+									only displays horizontal lines, creates
+									shutter effect)
 					clear window (doesn't delete image)
 					redisplay the fractal (use after window clear)
 					quit
-				left click iterate to next level of fractal
+				left click iterate to next level of fractal (up to 20)
 Output:		A computer graphic window will be displayed which will initially
 			be empty.  With each left click (up to 20) a dragon fractal will
 			be expanded.  A right click will produce a menu with options
-			listed in Input above.
+			listed in Input above which may change the appearance of the
+			fractal.
 */
 
 #include <GL/glut.h>
@@ -43,10 +53,13 @@ class dragonFractal
 		void figureNext();							// figure out next point
 		void ToggleRandomColors();					// user toggles whether or not to use random colors
 		float colorVal();							// return a random color float to make
+		void setLineType(char lineType);			// set which type of line to use
+		int getLineType();							// return what kind of line to draw
 		vector<float> getLastCoords();				// get the last coordinates in the fractal
 	private:
 		int levels;									// number of levels in the fractal
 		int pointNum;								// number of points it's on for vector iterations
+		int lineStyle;								// holds value of enum linestyle to use
 		float location;								// initial location
 		float segLength;							// length of segments
 		bool inMenu;								// was left click in menu?
@@ -58,7 +71,7 @@ class dragonFractal
 };
 
 const int iterationLimit = 20;		// maximum number of iterations allowed
-const float ww = 1000.0;				// set window's width
+const float ww = 1000.0;			// set window's width
 const float wh = 800.0;				// set window's height
 dragonFractal fractal;				// create an object to use
 
@@ -139,6 +152,24 @@ void dragonFractal::ToggleRandomColors()
 		this->randomColors = true;
 }
 
+void dragonFractal::setLineType(char lineType)
+// INPUT: char deciding what type of line to draw - s = LINE_STRIP l = LINES
+// OUTPUT: none
+// set line type
+{
+	if (lineType == 's')
+		this->lineStyle = GL_LINE_STRIP;
+	else
+		this->lineStyle = GL_LINES;
+}
+
+int dragonFractal::getLineType()
+// INPUT: none	OUTPUT: int depicting enum value for line type
+// returns what kind of lines to use when drawing
+{
+	return this->lineStyle;
+}
+
 void dragonFractal::figureNext()
 // INPUT: none	OUTPUT: none
 // figure out next point
@@ -189,6 +220,7 @@ void dragonFractal::drawFractal()
 // INPUT: none?	OUTPUT: none
 // draw next fractal level
 {
+	int linType = fractal.getLineType();
 	if (randomColors)
 	{
 		float r = fractal.colorVal()/10;
@@ -199,7 +231,7 @@ void dragonFractal::drawFractal()
 	else
 		glColor3f(1.0, 0.0, 0.0);
 	glLineWidth(2.0);
-	glBegin(GL_LINE_STRIP);
+	glBegin(linType);
 		for (int i = 0; i < fractalPoints.size(); i++)
 		{
 			if (i > 25000 && i < 85000 && this->NewRandomColor)
@@ -385,6 +417,12 @@ void menu (int menuVal)
 		case 6:	fractal.ToggleRandomColors();
 				fractal.setInMenu(false);
 				break;
+		case 7: fractal.setLineType('s');
+				fractal.setInMenu(false);
+				break;
+		case 8: fractal.setLineType('l');
+				fractal.setInMenu(false);
+				break;
 	}
 }
 
@@ -406,6 +444,8 @@ void init ()
 
 	// set default segment length to 20
 	fractal.setLength(0.7);
+	// set default line type to LINE_STRIP
+	fractal.setLineType('s');
 }
 
 void initMenu ()
@@ -417,6 +457,8 @@ void initMenu ()
 	glutAddMenuEntry("Create New (custom)", 1);
 	glutAddMenuEntry("Toggle Random Colors", 6);
 	glutAddMenuEntry("Segment Length", 2);
+	glutAddMenuEntry("Type of segments: Line Strip (default)", 7);
+	glutAddMenuEntry("Type of segments: Lines", 8);
 	glutAddMenuEntry("Clear", 3);
 	glutAddMenuEntry("Redisplay", 4);
 	glutAddMenuEntry("Quit", 5);
@@ -432,6 +474,8 @@ int main (int argc, char** argv)
 	cout << "Right click for menu\nLeft click to iterate fractal\n";
 	cout << "Toggling random colors on may make segments of fractal difficult to see\n";
 	cout << "There is a 20 iteration limit\n";
+	cout << "Changing type of segments is noticeable with longer segment lengths\n";
+	cout << "Line Strip connects all segments drawn\nLines does not, only draws horizontal lines creating shutter effect\n";
 	
 	// initiate window/viewport
 	glutInit(&argc, argv);
