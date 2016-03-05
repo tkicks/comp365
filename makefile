@@ -25,5 +25,8 @@ myanimate:		myanimate.cpp
 moveTeapot:		moveTeapot.cpp
 		g++ moveTeapot.cpp -o moveTeapot $(CFLAGS)
 
+hermiteCubic:		hermiteCubic.cpp
+		g++ hermiteCubic.cpp -o hermiteCubic $(CFLAGS)
+
 clean:
 		rm *.o
