@@ -44,6 +44,10 @@ class rollercoaster
 		void drawCoaster();							// function to draw rollercoaster
 		void drawLinear();							// draw the track linearly
 		void setSpline(bool lin, bool quad);		// set which type of spline to use
+		char getSpline();							// return which type of spline is used
+		float findSlope(float x1, float y1, float x2, float y2);	// find slope of line at current point
+		float findYInt(float x, float y, float slope);				// find the y-intercept of the line
+		float getWhichKnot(float cartX);			// return which knot iteration is being used to figure out slope/intercept pair
 	private:
 		vector<vector <float> > knots;				// vector of coordinates for knots read in from file
 		vector<float> tempVector;					// intermediary vector for 2d vector
@@ -51,9 +55,53 @@ class rollercoaster
 		bool quadratic;								// true if using quadratic spline
 };
 
+class rollercart
+{
+	public:
+		rollercart() {cartX = 0.0; cartY = 0.0;};	// init x and y coords to 0
+		~rollercart() {};
+		void drawCart();							// draw the rollercoaster cart
+		float getCartY();							// figure out the next y value of the cart
+	private:
+		float cartX, cartY;							// x and y coordinates
+		vector<vector <float> > slopeIntercepts;	// vector holding slopes and intercepts for each piece of spline
+		vector<float> tempVector;					// intermediary vector for 2d vector
+};
+
 const float ww = 1000.0;			// set window's width
 const float wh = 800.0;				// set window's height
-rollercoaster coaster;				// create an object to use
+rollercoaster coaster;				// create rollercoaster object to use
+rollercart cart;					// create cart object to use
+
+
+void rollercart::drawCart()
+// INPUT: none	OUTPUT: none
+// init x and y coords to 0,0 and draw cart at x, y
+{
+	// cart support wire
+	glBegin(GL_LINE_STRIP);
+		glVertex3f(cartX, cartY, 0.0);
+		glVertex3f(cartX, cartY - 25.0, 0.0);
+	glEnd();
+	// cart
+	glRectf(cartX - 25, cartY - 25, cartX + 25, cartY - 50);
+	
+	glFlush();
+}
+
+float rollercart::getCartY()
+// INPUT: none	OUTPUT: next y-coordinate for cart animation
+// return the next y-coord for the cart's animation
+{
+	if (coaster.getSpline() == 'l')
+	{
+		float whichKnot = coaster.getWhichKnot(cartX);	// which iteration for slope/intercept vector
+		float slope = slopeIntercepts[whichKnot][0];
+		float yInt = slopeIntercepts[whichKnot][1];
+		cartY = slope * cartX + yInt;
+		return cartY;
+	}
+}
 
 
 void rollercoaster::readCoaster(char *filename)
@@ -64,8 +112,6 @@ void rollercoaster::readCoaster(char *filename)
 	float x, y;
 	int numPoints = 0;
 	int i = 0;
-	// ifstream numberFile(filename.c_str());			// convert filename to chars to be opened
-	// if (!numberFile.good())
 	ifstream dataFile(filename);
 	if (!dataFile.good())							//
 		cout << "File not found.\n";				// see if file exists
@@ -127,7 +173,28 @@ void rollercoaster::drawCoaster()
 	if (linear)
 		coaster.drawLinear();
 
+	cart.drawCart();
+
 	glFlush();
+}
+
+float rollercoaster::findSlope(float x1, float y1, float x2, float y2)
+// INPUT: 2 sets of float x, y coordinates 	OUTPUT: float value of slope
+// return the slope of the line
+{
+	float y = y2 - y1;
+	float x = x2 - x1;
+	float slope = y/x;
+	return slope;
+}
+
+float rollercoaster::findYInt(float x, float y, float slope)
+// INPUT: x, y coords of first point in line, slope of line
+// OUTPUT: y-intercept of the line
+{
+	float part1 = x * slope;
+	float yInt = y - part1;
+	return yInt;
 }
 
 void rollercoaster::drawLinear()
@@ -147,6 +214,27 @@ void rollercoaster::setSpline(bool lin, bool quad)
 {
 	linear = lin;
 	quadratic = quad;
+}
+
+char rollercoaster::getSpline()
+// INPUT: none	OUTPUT: char first letter of type of spline
+// return the first letter of the type of spline being used
+{
+	if (linear)
+		return 'l';
+	else
+		return 'q';
+}
+
+float rollercoaster::getWhichKnot(float cartX)
+// INPUT: cart x location 	OUTPUT: return which knot is being used
+// return which knot to figure out which slope/intercept pair to use
+{
+	for (int i = 0; i < knots.size(); i++)
+	{
+		if (cartX > knots[i][0])
+			return i-1;
+	}
 }
 
 void display ()
