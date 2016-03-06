@@ -48,61 +48,46 @@ class rollercoaster
 		float findSlope(float x1, float y1, float x2, float y2);	// find slope of line at current point
 		float findYInt(float x, float y, float slope);				// find the y-intercept of the line
 		float getWhichKnot(float cartX);			// return which knot iteration is being used to figure out slope/intercept pair
-	private:
+		void reset();								// reset the coaster
+
+		void drawCart();							// draw the rollercoaster cart
+		float getCartY();							// figure out the next y value of the cart
+		void animate();								// animate cart
+	protected:
 		vector<vector <float> > knots;				// vector of coordinates for knots read in from file
 		vector<float> tempVector;					// intermediary vector for 2d vector
 		bool linear;								// true if using linear spline
 		bool quadratic;								// true if using quadratic spline
-};
 
-class rollercart
-{
-	public:
-		rollercart() {cartX = 0.0; cartY = 0.0;};	// init x and y coords to 0
-		~rollercart() {};
-		void drawCart();							// draw the rollercoaster cart
-		float getCartY();							// figure out the next y value of the cart
-	private:
 		float cartX, cartY;							// x and y coordinates
 		vector<vector <float> > slopeIntercepts;	// vector holding slopes and intercepts for each piece of spline
-		vector<float> tempVector;					// intermediary vector for 2d vector
+
 };
 
 const float ww = 1000.0;			// set window's width
 const float wh = 800.0;				// set window's height
+long waitTime = 75000;				// time to wait between frames in animation
 rollercoaster coaster;				// create rollercoaster object to use
-rollercart cart;					// create cart object to use
 
 
-void rollercart::drawCart()
-// INPUT: none	OUTPUT: none
-// init x and y coords to 0,0 and draw cart at x, y
+static void Idle( void )
+
+/* This is used to slow down your animation, if necessary.  I used it as
+ * a debugging tool - see the commented out parts.  I also used it to 
+ * change the z value used in the animation.
+ */
+
 {
-	// cart support wire
-	glBegin(GL_LINE_STRIP);
-		glVertex3f(cartX, cartY, 0.0);
-		glVertex3f(cartX, cartY - 25.0, 0.0);
-	glEnd();
-	// cart
-	glRectf(cartX - 25, cartY - 25, cartX + 25, cartY - 50);
-	
-	glFlush();
-}
+	clock_t endWait;  /* end of wait interval */
 
-float rollercart::getCartY()
-// INPUT: none	OUTPUT: next y-coordinate for cart animation
-// return the next y-coord for the cart's animation
-{
-	if (coaster.getSpline() == 'l')
-	{
-		float whichKnot = coaster.getWhichKnot(cartX);	// which iteration for slope/intercept vector
-		float slope = slopeIntercepts[whichKnot][0];
-		float yInt = slopeIntercepts[whichKnot][1];
-		cartY = slope * cartX + yInt;
-		return cartY;
-	}
+	/* a better way to wait: */
+	endWait = clock () + waitTime;
+	/* please wait...*/
+	while (clock () < endWait);
+	glutPostRedisplay();
+	coaster.drawCoaster();
+	coaster.drawCart();
 }
-
 
 void rollercoaster::readCoaster(char *filename)
 // INPUT: input file 	OUTPUT: none
@@ -163,19 +148,85 @@ void rollercoaster::drawCoaster()
 	glColor3f(1.0, 1.0, 1.0);
 	glBegin(GL_POINTS);
 		for (int i = 0; i < knots.size(); i++)
-		{
-			// cout << knots[i][0] << ", " << knots[i][1] << endl;
 			glVertex3f(knots[i][0], knots[i][1], 0.0);
-		}
 	glEnd();
 	// tracks
 	// linear
 	if (linear)
 		coaster.drawLinear();
 
-	cart.drawCart();
-
+	coaster.drawCart();
 	glFlush();
+}
+
+void rollercoaster::drawCart()
+// INPUT: none	OUTPUT: none
+// init x and y coords to 0,0 and draw cart at x, y
+{
+	// cart support wire
+	glBegin(GL_LINE_STRIP);
+		glVertex3f(cartX, cartY, 0.0);
+		glVertex3f(cartX, cartY - 25.0, 0.0);
+	glEnd();
+	// cart
+	glRectf(cartX - 25, cartY - 25, cartX + 25, cartY - 50);
+	
+	glFlush();
+}
+
+float rollercoaster::getCartY()
+// INPUT: none	OUTPUT: next y-coordinate for cart animation
+// return the next y-coord for the cart's animation
+{
+	if (coaster.getSpline() == 'l')
+	{
+		float whichKnot = coaster.getWhichKnot(cartX);	// which iteration for slope/intercept vector
+		float slope = slopeIntercepts[whichKnot][0];
+		float yInt = slopeIntercepts[whichKnot][1];
+		cartY = slope * cartX + yInt;
+		return cartY;
+	}
+}
+
+void rollercoaster::animate()
+// INPUT: none	OUTPUT: none
+// animates the cart by moving x and y coords then redrawing
+{
+	if (linear)
+	{
+		// find the slopes and y-intercepts for each and store in slopeIntercepts
+		for (int i = 0; i < knots.size()-1; i++)
+		{		
+			tempVector.clear();
+			float x1 = knots[i][0];
+			float y1 = knots[i][1];
+			float x2 = knots[i+1][0];
+			float y2 = knots[i+1][1];
+			float slope = findSlope(x1, y1, x2, y2);
+			float yIntercept = findYInt(x1, y1, slope);
+			tempVector.push_back(slope);
+			tempVector.push_back(yIntercept);
+			slopeIntercepts.push_back(tempVector);
+		}
+		while (cartX < 1000)
+		{
+			if (coaster.getSpline() == 'l')
+			{
+				cartX += 10;
+				cartY = getCartY();
+
+				// clear screen for animation
+				glClear (GL_COLOR_BUFFER_BIT);
+				glFlush();
+
+				drawCoaster();
+				drawCart();
+
+				Idle();
+				// cin.ignore();	// while testing
+			}
+		}
+	}
 }
 
 float rollercoaster::findSlope(float x1, float y1, float x2, float y2)
@@ -232,9 +283,23 @@ float rollercoaster::getWhichKnot(float cartX)
 {
 	for (int i = 0; i < knots.size(); i++)
 	{
-		if (cartX > knots[i][0])
+		if (cartX <= knots[i][0])
 			return i-1;
 	}
+}
+
+void rollercoaster::reset()
+// INPUT: none	OUTPUT: none
+// reset the rollercoaster
+{
+	slopeIntercepts.clear();
+	cartX = 0.0;
+	cartY = 0.0;
+
+	glClear (GL_COLOR_BUFFER_BIT);
+	coaster.drawCoaster();
+	coaster.drawCart();
+	glFlush();
 }
 
 void display ()
@@ -243,8 +308,9 @@ void display ()
 {
 	// set up window
 	glClear (GL_COLOR_BUFFER_BIT);
-
+	
 	coaster.drawCoaster();
+	coaster.drawCart();
 
 	// draw
 	glFlush ();
@@ -265,8 +331,42 @@ void init ()
 
 	// define coordinate system in x, y 0-1
 	gluOrtho2D (0.0-50, ww+50, -wh, wh);
+}
 
-	coaster.setSpline(true, false);		// init to linear spline
+void keyboard(unsigned char key, int x, int y)
+// INPUT: char of key pressed, current x, y locations	OUTPUT: none
+// determine what to do based on key pressed
+{
+	switch(key) {
+		case '0': coaster.setSpline(true, false);	// linear spline
+				  coaster.drawCoaster();
+				  break;
+		case '4': waitTime += 1000;
+				  glutPostRedisplay();
+				  break;
+		case '6': waitTime -= 1000;
+				  glutPostRedisplay();
+				  break;
+		case '+': glMatrixMode(GL_PROJECTION);
+				  gluOrtho2D (0.0-1.5, ww+1.5, -wh-1.5, wh+1.5);
+				  coaster.drawCoaster();
+				  coaster.drawCart();
+				  glFlush();
+				  break;
+		case '-': glMatrixMode(GL_PROJECTION);
+				  gluOrtho2D (0.0+1.5, ww-1.5, -wh+1.5, wh-1.5);
+				  coaster.drawCoaster();
+				  coaster.drawCart();
+				  glFlush();
+				  break;
+		case 'r': coaster.reset();
+				  break;
+		case 's': coaster.animate();				// start the animation
+				  break;
+		case 27:	// esc
+		case 03:	// ctrl+c
+		case 'q': exit(1);							// quit
+	}
 }
 
 int main (int argc, char** argv)
@@ -299,6 +399,9 @@ int main (int argc, char** argv)
 
 	// continuously call display function
 	glutDisplayFunc(display);
+
+	// continuously call keyboard function
+	glutKeyboardFunc(keyboard);
 
 	// keep repeating
 	glutMainLoop();
