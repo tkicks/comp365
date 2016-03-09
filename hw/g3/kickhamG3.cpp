@@ -66,6 +66,10 @@ class rollercoaster
 
 const float ww = 1000.0;			// set window's width
 const float wh = 800.0;				// set window's height
+float xMin = 0.0;
+float yMin = 0.0;
+float xMax = ww;
+float yMax = wh;
 long waitTime = 75000;				// time to wait between frames in animation
 rollercoaster coaster;				// create rollercoaster object to use
 
@@ -85,8 +89,8 @@ static void Idle( void )
 	/* please wait...*/
 	while (clock () < endWait);
 	glutPostRedisplay();
-	coaster.drawCoaster();
-	coaster.drawCart();
+	// coaster.drawCoaster();
+	// coaster.drawCart();
 }
 
 void rollercoaster::readCoaster(char *filename)
@@ -308,6 +312,9 @@ void display ()
 {
 	// set up window
 	glClear (GL_COLOR_BUFFER_BIT);
+	// glLoadIdentity();
+	// gluLookAt(0.0, 0.0, viewZ, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+	// glScalef(1.0, 1.0, 1.0);
 	
 	coaster.drawCoaster();
 	coaster.drawCart();
@@ -341,23 +348,25 @@ void keyboard(unsigned char key, int x, int y)
 		case '0': coaster.setSpline(true, false);	// linear spline
 				  coaster.drawCoaster();
 				  break;
-		case '4': waitTime += 1000;
+		case '4': waitTime += 5000;
 				  glutPostRedisplay();
 				  break;
-		case '6': waitTime -= 1000;
+		case '6': waitTime -= 5000;
 				  glutPostRedisplay();
 				  break;
-		case '+': glMatrixMode(GL_PROJECTION);
-				  gluOrtho2D (0.0-1.5, ww+1.5, -wh-1.5, wh+1.5);
-				  coaster.drawCoaster();
-				  coaster.drawCart();
-				  glFlush();
+		case '+': xMin -= ww*.1;
+				  yMin -= wh*.1;
+				  xMax += ww*.1;
+				  yMax += wh*.1;
+				  glViewport(xMin, yMin, xMax, yMax);
+				  glutPostRedisplay();
 				  break;
-		case '-': glMatrixMode(GL_PROJECTION);
-				  gluOrtho2D (0.0+1.5, ww-1.5, -wh+1.5, wh-1.5);
-				  coaster.drawCoaster();
-				  coaster.drawCart();
-				  glFlush();
+		case '-': xMin += ww*.1;
+				  yMin += wh*.1;
+				  xMax -= ww*.1;
+				  yMax -= wh*.1;
+				  glViewport(xMin, yMin, xMax, yMax);
+				  glutPostRedisplay();
 				  break;
 		case 'r': coaster.reset();
 				  break;
@@ -369,6 +378,18 @@ void keyboard(unsigned char key, int x, int y)
 	}
 }
 
+// void reshape (int w, int h)
+// {
+//    glViewport (0, 0, (GLsizei) w, (GLsizei) h);
+//    /* set up matrices for projection coordinate system */
+//    glMatrixMode (GL_PROJECTION);
+//    glLoadIdentity ();
+//    glFrustum (-1, 1, -1, 1, 1.5, 20.0);
+
+//    /* reset matrices to user's coordinate system */
+//    glMatrixMode (GL_MODELVIEW);
+// }
+
 int main (int argc, char** argv)
 // INPUT: none	OUTPUT: none
 // main function, calls other functions
@@ -376,7 +397,7 @@ int main (int argc, char** argv)
 	
 	// initiate window/viewport
 	glutInit(&argc, argv);
-	glutInitDisplayMode (GLUT_SINGLE | GLUT_RGB);
+	glutInitDisplayMode (GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
 
 	// size of window w/ const global (width, height)
 	glutInitWindowSize (ww, wh); 
@@ -399,6 +420,8 @@ int main (int argc, char** argv)
 
 	// continuously call display function
 	glutDisplayFunc(display);
+
+	// glutReshapeFunc(reshape);
 
 	// continuously call keyboard function
 	glutKeyboardFunc(keyboard);
