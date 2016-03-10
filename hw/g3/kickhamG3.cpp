@@ -53,11 +53,16 @@ class rollercoaster
 		void drawCart();							// draw the rollercoaster cart
 		float getCartY();							// figure out the next y value of the cart
 		void animate();								// animate cart
+		bool userCoords();							// return if the user selected to get mouse coordinates
+		void toggleUserCoords();					// toggle if choosing coords or not
+		void addCoord(int x, int y);				// add mouse click coordinates (not x<0||x>1000||y<-300||y>300)
+		void clearKnots();							// clear knots vector
 	protected:
 		vector<vector <float> > knots;				// vector of coordinates for knots read in from file
 		vector<float> tempVector;					// intermediary vector for 2d vector
 		bool linear;								// true if using linear spline
 		bool quadratic;								// true if using quadratic spline
+		bool userCoord;								// if the user selects to set coords w/ mouse
 
 		float cartX, cartY;							// x and y coordinates
 		vector<vector <float> > slopeIntercepts;	// vector holding slopes and intercepts for each piece of spline
@@ -100,7 +105,6 @@ void rollercoaster::readCoaster(char *filename)
 	knots.clear();
 	float x, y;
 	int numPoints = 0;
-	int i = 0;
 	ifstream dataFile(filename);
 	if (!dataFile.good())							//
 		cout << "File not found.\n";				// see if file exists
@@ -114,6 +118,21 @@ void rollercoaster::readCoaster(char *filename)
 		tempVector.push_back(y);					// put the coordinates together
 		knots.push_back(tempVector);				// store new coordinates
 		tempVector.clear();							// empty out old vector
+	}
+}
+
+void rollercoaster::addCoord(int x, int y)
+// INPUT: x, y mouse coords	OUTPUT: none
+// add mouse coords to coaster
+{
+	cout << x << " " << wh-y << endl;
+	if ((x > 0 && x < 1000) && (y > -300 && y < 300))
+	{
+		tempVector.push_back(x);
+		tempVector.push_back(y);
+		knots.push_back(tempVector);
+		tempVector.clear();
+		cout << knots.back()[0] << " " << knots.back()[1] << endl;
 	}
 }
 
@@ -277,7 +296,7 @@ char rollercoaster::getSpline()
 {
 	if (linear)
 		return 'l';
-	else
+	else if (quadratic)
 		return 'q';
 }
 
@@ -301,9 +320,33 @@ void rollercoaster::reset()
 	cartY = 0.0;
 
 	glClear (GL_COLOR_BUFFER_BIT);
-	coaster.drawCoaster();
+	// coaster.drawCoaster();
 	coaster.drawCart();
 	glFlush();
+}
+
+bool rollercoaster::userCoords()
+// INPUT: none	OUTPUT: if the user is selecting coordinates
+// return if the user is selecting user coordinates
+{
+	return userCoord;
+}
+
+void rollercoaster::toggleUserCoords()
+// INPUT: none	OUTPUT: none
+// toggle mouse input on/off
+{
+	if (userCoord)
+		userCoord = false;
+	else
+		userCoord = true;
+}
+
+void rollercoaster::clearKnots()
+// INPUT: none	OUTPUT: none
+// clear knots
+{
+	knots.clear();
 }
 
 void display ()
@@ -312,11 +355,9 @@ void display ()
 {
 	// set up window
 	glClear (GL_COLOR_BUFFER_BIT);
-	// glLoadIdentity();
-	// gluLookAt(0.0, 0.0, viewZ, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
-	// glScalef(1.0, 1.0, 1.0);
 	
-	coaster.drawCoaster();
+	if (coaster.getSpline() == 'l' || coaster.getSpline() == 'q')
+		coaster.drawCoaster();
 	coaster.drawCart();
 
 	// draw
@@ -372,23 +413,34 @@ void keyboard(unsigned char key, int x, int y)
 				  break;
 		case 's': coaster.animate();				// start the animation
 				  break;
+		case 'u': if (!coaster.userCoords())
+				  {
+					coaster.clearKnots();
+					coaster.addCoord(0, 0);
+				  }
+				  if (coaster.userCoords())
+				  	coaster.addCoord(1000, 0);
+				  coaster.toggleUserCoords();
+				  break;
 		case 27:	// esc
 		case 03:	// ctrl+c
 		case 'q': exit(1);							// quit
 	}
 }
 
-// void reshape (int w, int h)
-// {
-//    glViewport (0, 0, (GLsizei) w, (GLsizei) h);
-//    /* set up matrices for projection coordinate system */
-//    glMatrixMode (GL_PROJECTION);
-//    glLoadIdentity ();
-//    glFrustum (-1, 1, -1, 1, 1.5, 20.0);
-
-//    /* reset matrices to user's coordinate system */
-//    glMatrixMode (GL_MODELVIEW);
-// }
+void mouse (int button, int state, int x, int y)
+// INPUT: which button pressed on mouse, state of object, x/y coords of click
+// OUTPUT: none
+// get coordinates from mouse
+{
+	if (button == GLUT_RIGHT_BUTTON)
+		return;
+	// if the left mouse was pressed and it wasn't in the menu draw fractal
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN && coaster.userCoords())
+	{
+		coaster.addCoord(x, y);
+	}
+}
 
 int main (int argc, char** argv)
 // INPUT: none	OUTPUT: none
@@ -421,10 +473,11 @@ int main (int argc, char** argv)
 	// continuously call display function
 	glutDisplayFunc(display);
 
-	// glutReshapeFunc(reshape);
-
 	// continuously call keyboard function
 	glutKeyboardFunc(keyboard);
+
+	// continuously call mouse function
+	glutMouseFunc(mouse);
 
 	// keep repeating
 	glutMainLoop();
