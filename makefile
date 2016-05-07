@@ -28,5 +28,33 @@ moveTeapot:		moveTeapot.cpp
 hermiteCubic:		hermiteCubic.cpp
 		g++ hermiteCubic.cpp -o hermiteCubic $(CFLAGS)
 
+square:		square.cpp
+		g++ square.cpp -o square $(CFLAGS)
+
+viewports:		viewports.cpp
+		g++ viewports.cpp -o viewports $(CFLAGS)
+
+squareOfWalls:		squareOfWalls.cpp
+		g++ squareOfWalls.cpp -o squareOfWalls $(CFLAGS)
+
+threeQuarterSphere:		threeQuarterSphere.cpp
+		g++ threeQuarterSphere.cpp -o threeQuarterSphere $(CFLAGS)
+
+sphereInBox1:		sphereInBox1.cpp
+		g++ sphereInBox1.cpp -o sphereInBox1 $(CFLAGS)
+
+lightAndMaterial1:		lightAndMaterial1.cpp
+		g++ lightAndMaterial1.cpp -o lightAndMaterial1 $(CFLAGS)
+
+lightAndMaterial2:		lightAndMaterial2.cpp
+		g++ lightAndMaterial2.cpp -o lightAndMaterial2 $(CFLAGS)
+
+sizeNormal:		sizeNormal.cpp
+		g++ sizeNormal.cpp glm.c -o sizeNormal $(CFLAGS)
+
+mytexture:		mytexture.cpp
+		g++ mytexture.cpp glm.c -o mytexture $(CFLAGS)
+
+
 clean:
 		rm *.o
