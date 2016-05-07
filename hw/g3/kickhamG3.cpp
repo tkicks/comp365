@@ -7,25 +7,27 @@ Input:		The user will enter a file name in the terminal while starting
 			the program. IE: kickhamG3 data.input
 			The user can also use the keyboard to:
 					0: display linear spline (rollercoaster track)
-					1: display quadratic spline (rollercoaster track)
-					2: display cubic (optional) spline (rollercoaster track)
 					4: make the rollercoaster go faster
 					6: make the rollercoaster go slower
 					+: zoom in
 					-: zoom out
-					m: choose new data points with mouse (optional)
+					m: choose new data points with mouse (if the user
+						selects a coordinate with a lower x value than
+						the last or 300<y<-300, it will not be recorded)
 					n: display the next set of knots in the file (display
 						error message if no more lines)
 					r: reposition cart to beginning of track
 					s: start moving the cart along the track
-					q: quit
+					q: quit (also ctrl+c and esc)
 Output:		A computer graphic window will be displayed with a beginning
 			block and an ending block along with a rollercoaster track as
 			defined by the file being read in.  Upon various keypresses,
 			the user will be able to change the shape of the track, view
 			an animation of the cart moving along the track, change the
 			speed of the cart, make everything bigger (zoom in) or smaller
-			(zoom out).
+			(zoom out).  Does not have quadratic or cubic capabilities.
+			Sometimes an error that sets beginning 0, 0 coordinate to
+			0, random y.
 */
 
 #include <GL/glut.h>
@@ -35,12 +37,14 @@ Output:		A computer graphic window will be displayed with a beginning
 #include <string>
 using namespace std;
 
+void display();
+
 class rollercoaster
 {
 	public:
-		rollercoaster() {};
+		rollercoaster() {fileLine = 0;};
 		~rollercoaster() {};
-		void readCoaster(char *filename);			// read in the rollercoaster
+		void readCoaster();			// read in the rollercoaster
 		void drawCoaster();							// function to draw rollercoaster
 		void drawLinear();							// draw the track linearly
 		void setSpline(bool lin, bool quad);		// set which type of spline to use
@@ -54,15 +58,19 @@ class rollercoaster
 		float getCartY();							// figure out the next y value of the cart
 		void animate();								// animate cart
 		bool userCoords();							// return if the user selected to get mouse coordinates
-		void toggleUserCoords();					// toggle if choosing coords or not
-		void addCoord(int x, int y);				// add mouse click coordinates (not x<0||x>1000||y<-300||y>300)
+		void toggleUserCoords(int i);				// toggle if choosing coords or not
+		void addCoord(float x, float y);			// add mouse click coordinates (not x<0||x>1000||y<-300||y>300)
 		void clearKnots();							// clear knots vector
+		void setName(char *filename);				// set file name
+		float getBackX();
 	protected:
 		vector<vector <float> > knots;				// vector of coordinates for knots read in from file
 		vector<float> tempVector;					// intermediary vector for 2d vector
 		bool linear;								// true if using linear spline
 		bool quadratic;								// true if using quadratic spline
 		bool userCoord;								// if the user selects to set coords w/ mouse
+		char *file;									// file name
+		int fileLine;								// line in file
 
 		float cartX, cartY;							// x and y coordinates
 		vector<vector <float> > slopeIntercepts;	// vector holding slopes and intercepts for each piece of spline
@@ -98,41 +106,62 @@ static void Idle( void )
 	// coaster.drawCart();
 }
 
-void rollercoaster::readCoaster(char *filename)
+void rollercoaster::setName(char *filename)
+// INPUT: file name 	OUTPUT: none
+// set file name in class
+{
+	file = filename;
+}
+
+void rollercoaster::readCoaster()
 // INPUT: input file 	OUTPUT: none
 // read the data in from the file
 {
-	knots.clear();
 	float x, y;
 	int numPoints = 0;
-	ifstream dataFile(filename);
+	int i = 0;
+	string line;
+	ifstream dataFile(file);
 	if (!dataFile.good())							//
 		cout << "File not found.\n";				// see if file exists
 
-	dataFile >> numPoints;
-
-	while (x != 1000)								// while not past the last coordinate
+	while (!dataFile.eof() && i < fileLine)
 	{
-		dataFile >> x >> y;							// read in the next x and y values
-		tempVector.push_back(x);					//
-		tempVector.push_back(y);					// put the coordinates together
-		knots.push_back(tempVector);				// store new coordinates
-		tempVector.clear();							// empty out old vector
+		getline(dataFile, line);
+		i++;
 	}
+
+	if (!dataFile.eof())
+	{
+		knots.clear();
+		dataFile >> numPoints;
+		while (x != 1000)								// while not past the last coordinate
+		{
+			dataFile >> x >> y;							// read in the next x and y values
+			tempVector.push_back(x);					//
+			tempVector.push_back(y);					// put the coordinates together
+			knots.push_back(tempVector);				// store new coordinates
+			tempVector.clear();							// empty out old vector
+		}
+		display();
+	}
+	else
+		cout << "end of file\n";
+
+
+	fileLine += 1;
 }
 
-void rollercoaster::addCoord(int x, int y)
+void rollercoaster::addCoord(float x, float y)
 // INPUT: x, y mouse coords	OUTPUT: none
 // add mouse coords to coaster
 {
-	cout << x << " " << wh-y << endl;
-	if ((x > 0 && x < 1000) && (y > -300 && y < 300))
+	if ((x >= 0 && x <= 1000) && (y >= -300 && y <= 300))
 	{
 		tempVector.push_back(x);
 		tempVector.push_back(y);
 		knots.push_back(tempVector);
 		tempVector.clear();
-		cout << knots.back()[0] << " " << knots.back()[1] << endl;
 	}
 }
 
@@ -246,7 +275,6 @@ void rollercoaster::animate()
 				drawCart();
 
 				Idle();
-				// cin.ignore();	// while testing
 			}
 		}
 	}
@@ -332,21 +360,18 @@ bool rollercoaster::userCoords()
 	return userCoord;
 }
 
-void rollercoaster::toggleUserCoords()
-// INPUT: none	OUTPUT: none
-// toggle mouse input on/off
-{
-	if (userCoord)
-		userCoord = false;
-	else
-		userCoord = true;
-}
-
 void rollercoaster::clearKnots()
 // INPUT: none	OUTPUT: none
 // clear knots
 {
 	knots.clear();
+}
+
+float rollercoaster::getBackX()
+// INPUT: none	OUTPUT: last x coord user clicked
+// return the last x coordinate to determine if click is valid
+{
+	return knots.back()[0];
 }
 
 void display ()
@@ -355,6 +380,19 @@ void display ()
 {
 	// set up window
 	glClear (GL_COLOR_BUFFER_BIT);
+
+	if (coaster.userCoords())
+	{
+		glBegin(GL_LINES);
+			glVertex3f(0.0, 300.0, 0.0);
+			glVertex3f(1000.0, 300.0, 0.0);
+		glEnd();
+		glBegin(GL_LINES);
+			glVertex3f(0.0, -300.0, 0.0);
+			glVertex3f(1000.0, -300.0, 0.0);
+		glEnd();
+		glFlush();
+	}
 	
 	if (coaster.getSpline() == 'l' || coaster.getSpline() == 'q')
 		coaster.drawCoaster();
@@ -362,6 +400,22 @@ void display ()
 
 	// draw
 	glFlush ();
+}
+
+void rollercoaster::toggleUserCoords(int i)
+// INPUT: none	OUTPUT: none
+// toggle mouse input on/off
+{
+	if (i == 0)
+	{
+		if (userCoord)
+			userCoord = false;
+		else
+			userCoord = true;
+		display();
+	}
+	else
+		userCoord = false;
 }
 
 void init ()
@@ -386,7 +440,11 @@ void keyboard(unsigned char key, int x, int y)
 // determine what to do based on key pressed
 {
 	switch(key) {
-		case '0': coaster.setSpline(true, false);	// linear spline
+		case '0': if (coaster.userCoords())
+					coaster.addCoord(1000, 0);
+				  coaster.toggleUserCoords(1);
+				  coaster.setSpline(true, false);	// linear spline
+				  // coaster.readCoaster();
 				  coaster.drawCoaster();
 				  break;
 		case '4': waitTime += 5000;
@@ -411,16 +469,22 @@ void keyboard(unsigned char key, int x, int y)
 				  break;
 		case 'r': coaster.reset();
 				  break;
-		case 's': coaster.animate();				// start the animation
+		case 's': if (coaster.userCoords())
+					coaster.addCoord(1000, 0);
+				  coaster.toggleUserCoords(1);
+				  coaster.animate();				// start the animation
 				  break;
-		case 'u': if (!coaster.userCoords())
+		case 'm': if (!coaster.userCoords())
 				  {
 					coaster.clearKnots();
 					coaster.addCoord(0, 0);
 				  }
 				  if (coaster.userCoords())
 				  	coaster.addCoord(1000, 0);
-				  coaster.toggleUserCoords();
+				  coaster.toggleUserCoords(0);
+				  break;
+		case 'n': coaster.toggleUserCoords(1);
+				  coaster.readCoaster();
 				  break;
 		case 27:	// esc
 		case 03:	// ctrl+c
@@ -438,7 +502,8 @@ void mouse (int button, int state, int x, int y)
 	// if the left mouse was pressed and it wasn't in the menu draw fractal
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN && coaster.userCoords())
 	{
-		coaster.addCoord(x, y);
+		if (x > coaster.getBackX())
+			coaster.addCoord(x, (wh-y)-300);
 	}
 }
 
@@ -464,11 +529,21 @@ int main (int argc, char** argv)
 	init ();
 
 	// console instructions
-	cout << "List of keypresses\n";
+	cout << "0: display linear spline (rollercoaster track)\n";
+	cout << "4: make the rollercoaster go faster\n";
+	cout << "6: make the rollercoaster go slower\n";
+	cout << "+: zoom in\n";
+	cout << "-: zoom out\n";
+	cout << "m: choose new data points with mouse\n";
+	cout << "n: display the next set of knots in the file\n";
+	cout << "r: reposition cart to beginning of track\n";
+	cout << "s: start moving the cart along the track\n";
+	cout << "q: quit (also ctrl+c and esc)\n";
 	
 	// read file
 	char *filename = argv[1];
-	coaster.readCoaster(filename);
+	coaster.setName(filename);
+	coaster.readCoaster();
 
 	// continuously call display function
 	glutDisplayFunc(display);

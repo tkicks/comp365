@@ -28,6 +28,7 @@ moveTeapot:		moveTeapot.cpp
 hermiteCubic:		hermiteCubic.cpp
 		g++ hermiteCubic.cpp -o hermiteCubic $(CFLAGS)
 
+<<<<<<< HEAD
 square:		square.cpp
 		g++ square.cpp -o square $(CFLAGS)
 
@@ -56,5 +57,10 @@ mytexture:		mytexture.cpp
 		g++ mytexture.cpp glm.c -o mytexture $(CFLAGS)
 
 
+=======
+lightAndMaterial1:		lightAndMaterial1.cpp
+		g++ lightAndMaterial1.cpp -o lightAndMaterial1 $(CFLAGS)
+
+>>>>>>> 14acb4e52e1c44073385f20d95420f799318f53a
 clean:
 		rm *.o
