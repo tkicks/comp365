@@ -28,5 +28,8 @@ moveTeapot:		moveTeapot.cpp
 hermiteCubic:		hermiteCubic.cpp
 		g++ hermiteCubic.cpp -o hermiteCubic $(CFLAGS)
 
+lightAndMaterial1:		lightAndMaterial1.cpp
+		g++ lightAndMaterial1.cpp -o lightAndMaterial1 $(CFLAGS)
+
 clean:
 		rm *.o
