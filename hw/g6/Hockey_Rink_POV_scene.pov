@@ -86,15 +86,14 @@ light_source {
              }
 
 light_source {
-              <3.5527136788005,0,103.35939290475> //light position
+              <3.5527136788005,0,-103.35939290475> //light position
               color rgb <1,1,1>*1
               parallel
               point_at <-3.5527136788005E-15,10,50>
              }
  
 //Background
-background { color srgb <0,0,.7>  }
-
+background { color srgb <0,0,0>  }
  
 //Assembled object that is contained in Hockey_Rink_POV_geom.inc with no SSLT components
 object{
@@ -114,12 +113,11 @@ sor {
     pigment{
       image_map{
         png "B.png"
-        map_type 5
+        map_type 1
         interpolate 2
-        once
       }
     //translate <-1,0,0>
-    //rotate <0,0,0>
+    rotate <0,0,0>
     //scale 2
     }
   }
@@ -127,6 +125,70 @@ sor {
         reflection 0.5
       }
 }
+
+//far crowd
+box {
+  <-200,-100000000,-300>, <1000,150,-300>
+  texture {
+    pigment {
+      image_map {
+        png "stands.png"
+        map_type 0
+      }
+    }
+    scale 200
+  }
+}
+
+//left side crowd
+box {
+  <-190,-100000,400>, <-200,150,-300>
+  texture {
+    pigment {
+      image_map {
+        png "stands.png"
+        map_type 0
+      }
+    }
+    rotate <0,90,0>
+    scale 200
+  }
+}
+
+//right side crowd
+box {
+  <200,-100000,400>, <200,50,-300>
+  texture {
+    pigment {
+      image_map {
+        png "stands.png"
+        map_type 0
+      }
+    }
+    rotate <0,90,0>
+    scale 200
+  }
+}
+
+//ice
+box {
+  <-100,1,-200>, <100,1,400>
+  texture {
+    pigment {
+      image_map {
+        png "ice.png"
+        map_type 0
+        once
+      }
+    }
+    rotate <0,90,0>
+    scale 200
+  }
+  finish{
+        reflection 0.5
+      }
+}
+
 
 plane { y, -.9
   texture{

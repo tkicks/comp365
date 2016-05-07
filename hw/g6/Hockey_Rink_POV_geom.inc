@@ -53353,7 +53353,7 @@ object{Hockey_Rink_material69_  material{material69_} hollow
 		pigment {color rgb <1,1,1,0.95>}	// transparency
 		}
 //ice
-object{Hockey_Rink_material1_  material{
+/*object{Hockey_Rink_material1_  material{
 		texture{
 	      pigment{
 	        image_map{
@@ -53368,7 +53368,7 @@ object{Hockey_Rink_material1_  material{
     	}} hollow
     	finish{
     		reflection 0.5
-    	} }
+    	}}*/
 //object{Hockey_Rink_material55_  material{material55_} hollow }  //lights
 }
  
