@@ -86,8 +86,8 @@ light_source {
              }
 
 light_source {
-              <3.5527136788005,0,-103.35939290475> //light position
-              color rgb <1,1,1>*1
+              <0,0,0> //light position
+              color rgb <1,1,1>*1.6
               parallel
               point_at <-3.5527136788005E-15,10,50>
              }
@@ -101,28 +101,26 @@ object{
       
       }
 
+//puck
 sor {
   4
-  <1, 0>
-  <1, 0.05>
-  <1, 0.06>
-  <1, 0.07>
-  scale 30
+  <0.5, 0>
+  <0.5, 1>
+  <0.5, 1.1>
+  <0.5, 1.2>
+  scale 20
 
   texture{
-    pigment{
-      image_map{
-        png "B.png"
-        map_type 1
-        interpolate 2
-      }
-    //translate <-1,0,0>
-    rotate <0,0,0>
-    //scale 2
-    }
-  }
-  finish{
-        reflection 0.5
+        pigment{
+          image_map{
+            jpeg "puck.jpeg"
+            map_type 1
+            once
+          }
+        }
+        rotate <-90,-90,0>
+        translate <0,-10,0>
+        scale 200
       }
 }
 
@@ -171,8 +169,8 @@ box {
 }
 
 //ice
-box {
-  <-100,1,-200>, <100,1,400>
+/*box {
+  <-120,1,-200>, <120,1,400>
   texture {
     pigment {
       image_map {
@@ -182,44 +180,59 @@ box {
       }
     }
     rotate <0,90,0>
-    scale 200
+    scale 10
   }
   finish{
         reflection 0.5
       }
-}
+}*/
 
 
-plane { y, -.9
+plane { y, -.1
   texture{
    pigment {
         image_map{
-        //jpeg "snow.jpeg"
         jpeg "snow2.jpeg"
         //png "stands.png"
         map_type 0
         }
-        scale <1,100,10>
+        scale 1
       }
     }
    finish {ambient 0.1 diffuse 0.5}
 }
 
+//center logo
+box {
+  <-512,-512,2>, <512,512,2>
+  texture{
+        pigment{
+          image_map{
+            png "B.png"
+            map_type 0
+            once
+          }
+        }
+        scale 100
+      }
+      rotate <-90,0,0>
+      translate <-50,0,50>
+  }
 
-//sphere{ <0,1,2>,90
-//      texture{
-//        pigment{
-//          image_map{
-//            png "B.png"
-//            map_type 1
-//            interpolate 2
-//            once
-//          }
-//        }
-//      }
-//
-//      rotate <0,0,0>
-//      }
+
+/*sphere{ <0,100,2>,20
+      texture{
+        pigment{
+          image_map{
+            png "B.png"
+            map_type 5
+            interpolate 2
+            once
+          }
+        }
+      rotate <-10,0,0>
+      scale 0.5
+      }}*/
 
  
 //restore the version used outside this file
